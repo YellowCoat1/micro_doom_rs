@@ -1,3 +1,4 @@
+mod vecs;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
 pub struct GameState {
 }

@@ -1,12 +1,12 @@
 use nalgebra_glm as glm;
 use nalgebra_glm::{Vec2 as GlmVec2, Vec3 as GlmVec3};
 
-struct Vec2 {
+pub struct Vec2 {
     x: f32,
     y: f32,
 }
 
-struct Vec3 {
+pub struct Vec3 {
     x: f32,
     y: f32,
     z: f32,

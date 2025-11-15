@@ -1,4 +1,3 @@
-mod vecs;
 mod game;
 
 fn main() {
