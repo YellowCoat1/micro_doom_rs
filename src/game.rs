@@ -1,6 +1,7 @@
-use ggez::{Context, GameResult, event};
+use ggez::{Context, GameResult, event, graphics, graphics::Color};
 pub struct GameState {
 }
+
 
 
 impl GameState {
@@ -18,7 +19,15 @@ impl event::EventHandler for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        // Draw game elements here
-        Ok(())
+        let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
+
+        draw(&mut self, ctx, &mut canvas)?;
+
+        canvas.finish(ctx)
     }
+}
+
+fn draw(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult<()> {
+    // Drawing logic here
+    Ok(())
 }
