@@ -21,13 +21,13 @@ impl event::EventHandler for GameState {
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
 
-        draw(&mut self, ctx, &mut canvas)?;
+        draw_screen(self, ctx, &mut canvas)?;
 
         canvas.finish(ctx)
     }
 }
 
-fn draw(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult<()> {
+fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult<()> {
     // Drawing logic here
     
 
