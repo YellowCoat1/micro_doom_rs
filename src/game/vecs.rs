@@ -1,15 +1,35 @@
-use nalgebra_glm as glm;
+use std::ops::{Add, Sub, Mul, Div};
 use nalgebra_glm::{Vec2 as GlmVec2, Vec3 as GlmVec3};
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vec2 {
-    x: f32,
-    y: f32,
+    pub x: f32,
+    pub y: f32,
 }
 
+impl Vec2 {
+    pub fn new(x: f32, y: f32) -> Self {
+        Vec2 { x, y }
+    }
+    pub fn length(&self) -> f32 {
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vec3 {
-    x: f32,
-    y: f32,
-    z: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+impl Vec3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Vec3 { x, y, z }
+    }
+    pub fn length(&self) -> f32 {
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+    }
 }
 
 impl From<GlmVec2> for Vec2 {
@@ -33,3 +53,91 @@ impl From<Vec3> for GlmVec3 {
         GlmVec3::new(v.x, v.y, v.z)
     }
 }
+
+impl Add for Vec2 {
+    type Output = Vec2;
+
+    fn add(self, other: Vec2) -> Vec2 {
+        Vec2 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+
+impl Sub for Vec2 {
+    type Output = Vec2;
+
+    fn sub(self, other: Vec2) -> Vec2 {
+        Vec2 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+
+impl Mul<f32> for Vec2 {
+    type Output = Vec2;
+
+    fn mul(self, scalar: f32) -> Vec2 {
+        Vec2 {
+            x: self.x * scalar,
+            y: self.y * scalar,
+        }
+    }
+}
+impl Div<f32> for Vec2 {
+    type Output = Vec2;
+    fn div(self, scalar: f32) -> Vec2 {
+        Vec2 {
+            x: self.x / scalar,
+            y: self.y / scalar,
+        }
+    }
+}
+impl Add for Vec3 {
+    type Output = Vec3;
+    fn add(self, other: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+
+impl Sub for Vec3 {
+    type Output = Vec3;
+    fn sub(self, other: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+}
+
+impl Mul<f32> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, scalar: f32) -> Vec3 {
+        Vec3 {
+            x: self.x * scalar,
+            y: self.y * scalar,
+            z: self.z * scalar,
+        }
+    }
+}
+
+impl Div<f32> for Vec3 {
+    type Output = Vec3;
+    fn div(self, scalar: f32) -> Vec3 {
+        Vec3 {
+            x: self.x / scalar,
+            y: self.y / scalar,
+            z: self.z / scalar,
+        }
+    }
+}
+

@@ -1,4 +1,6 @@
 mod vecs;
+mod a3d_to_2d;
+mod lines;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
 pub struct GameState {
 }
