@@ -5,7 +5,7 @@ pub struct GameState {
 
 
 impl GameState {
-    pub fn new() -> Self {
+    pub fn new(ctx: &mut Context) -> Self {
         GameState {
             // Initialize game state here
         }
@@ -29,5 +29,8 @@ impl event::EventHandler for GameState {
 
 fn draw(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult<()> {
     // Drawing logic here
+    
+
+
     Ok(())
 }
