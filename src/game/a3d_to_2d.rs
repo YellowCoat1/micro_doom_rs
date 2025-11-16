@@ -1,4 +1,5 @@
 use super::vecs::{Vec3, Vec2};
+use super::cam::Camera;
 
 /// Projects a 3D point `p` into 2D space given a camera position and a vertical FOV (in radians).
 ///
@@ -8,11 +9,11 @@ use super::vecs::{Vec3, Vec2};
 ///
 /// Returns a 2D point in pixel coordinates if `screen_size` is provided,
 /// otherwise returns normalized device coordinates in [-1, 1].
-fn project_point(point: Vec3, cam_pos: Vec3, fov_y: f32, screen_size: Option<(f32, f32)>) -> Option<Vec2> {
+pub fn project_point(point: Vec3, cam: &Camera, screen_size: Option<(f32, f32)>) -> Option<Vec2> {
     // Translate point relative to camera
-    let dx = point.x - cam_pos.x;
-    let dy = point.y - cam_pos.y;
-    let dz = point.z - cam_pos.z;
+    let dx = point.x - cam.pos.x;
+    let dy = point.y - cam.pos.y;
+    let dz = point.z - cam.pos.z;
 
     // If point is behind the camera (or exactly at camera), no projection
     if dz <= 0.0 {
@@ -20,7 +21,7 @@ fn project_point(point: Vec3, cam_pos: Vec3, fov_y: f32, screen_size: Option<(f3
     }
 
     // Compute focal length from FOV: f = 1 / tan(FOV/2)
-    let f = 1.0 / (fov_y * 0.5).tan();
+    let f = 1.0 / (cam.fov * 0.5).tan();
 
     // Project to NDC (normalized device coordinates)
     let ndc_x = dx * f / dz;
