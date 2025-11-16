@@ -219,3 +219,70 @@ fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
 
     true
 }
+
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Order {
+    Left,
+    Right,
+    On,
+}
+
+// determines which side of the line the point is on.
+// Treats the line as infinite in both directions.
+fn point_side_of_line(line: &LineSegment, point: &Vec2) -> Order {
+    let val = (line.end.x - line.start.x) * (point.y - line.start.y) -
+              (line.end.y - line.start.y) * (point.x - line.start.x);
+    if val > 0.0 {
+        Order::Left
+    } else if val < 0.0 {
+        Order::Right
+    } else {
+        Order::On
+    }
+
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_intersection_point() {
+        let line1 = LineSegment::from((0.0, 0.0, 2.0, 2.0));
+        let line2 = LineSegment::from((0.0, 2.0, 2.0, 0.0));
+        let intersection = intersection_point(&line1, &line2).unwrap();
+        assert_eq!(intersection, Vec2::new(1.0, 1.0));
+    }
+    #[test]
+    fn test_no_intersection_point() {
+        let line1 = LineSegment::from((0.0, 0.0, 1.0, 1.0));
+        let line2 = LineSegment::from((0.0, 1.0, 1.0, 2.0));
+        let intersection = intersection_point(&line1, &line2);
+        assert!(intersection.is_none());
+    }
+    #[test]
+    fn test_do_lines_intersect() {
+        let line1 = LineSegment::from((0.0, 0.0, 2.0, 2.0));
+        let line2 = LineSegment::from((0.0, 2.0, 2.0, 0.0));
+        assert!(do_lines_intersect(&line1, &line2));
+    }
+    #[test]
+    fn test_point_side_left() {
+        let line = LineSegment::from((0.0, 0.0, 2.0, 0.0));
+        let point = Vec2::new(1.0, 1.0);
+        assert_eq!(point_side_of_line(&line, &point), Order::Left);
+    }
+    #[test]
+    fn test_point_side_right() {
+        let line = LineSegment::from((0.0, 0.0, 2.0, 0.0));
+        let point = Vec2::new(1.0, -1.0);
+        assert_eq!(point_side_of_line(&line, &point), Order::Right);
+    }
+    #[test]
+    fn test_point_side_on() {
+        let line = LineSegment::from((0.0, 0.0, 2.0, 0.0));
+        let point = Vec2::new(1.0, 0.0);
+        assert_eq!(point_side_of_line(&line, &point), Order::On);
+    }
+}
