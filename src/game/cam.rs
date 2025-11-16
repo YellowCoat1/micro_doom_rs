@@ -3,6 +3,7 @@ use super::lines::{self, LineSegment};
 pub struct Camera {
     pub pos: Vec3,
     pub fov: f32,
+    pub yaw: f32,
 }
 
 impl Camera {
@@ -43,6 +44,24 @@ impl Camera {
             LineSegment { start: origin2, end: end2 + origin2 },
         )
     }
+
+    pub fn rotate_seg(&self, seg: LineSegment) -> LineSegment {
+        let cos_yaw = self.yaw.cos();
+        let sin_yaw = self.yaw.sin();
+
+        let rotate_point = |point: Vec2| -> Vec2 {
+            Vec2 {
+                x: point.x * cos_yaw - point.y * sin_yaw,
+                y: point.x * sin_yaw + point.y * cos_yaw,
+            }
+        };
+
+        LineSegment {
+            start: rotate_point(seg.start),
+            end: rotate_point(seg.end),
+        }
+    }
+
 }
 
 pub fn wall_camera_intersect(fulcs: (LineSegment, LineSegment), wall_seg: LineSegment) -> LineSegment {
@@ -76,5 +95,3 @@ fn wall_camera_intersect_one(fulc: LineSegment, mut wall_seg: LineSegment) -> Li
 
         wall_seg
 }
-
-
