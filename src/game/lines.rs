@@ -220,6 +220,11 @@ fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
     true
 }
 
+// Assuming that a interpreted as an inf line intersects with the line segment b,
+// returns the 2 split segments of b from both sides of the intersection.
+pub fn split_line(a: &LineSegment, b: &LineSegment) -> (LineSegment, LineSegment) {
+    todo!()
+}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Order {
@@ -230,7 +235,7 @@ pub enum Order {
 
 // determines which side of the line the point is on.
 // Treats the line as infinite in both directions.
-fn point_side_of_line(line: &LineSegment, point: &Vec2) -> Order {
+pub fn point_side_of_line(line: &LineSegment, point: &Vec2) -> Order {
     let val = (line.end.x - line.start.x) * (point.y - line.start.y) -
               (line.end.y - line.start.y) * (point.x - line.start.x);
     if val > 0.0 {
@@ -240,7 +245,6 @@ fn point_side_of_line(line: &LineSegment, point: &Vec2) -> Order {
     } else {
         Order::On
     }
-
 }
 
 
