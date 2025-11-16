@@ -59,7 +59,7 @@ impl GameState {
     pub fn new(ctx: &mut Context) -> Self {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
-        let floor_plan: Vec<(Vec2, Vec2)> = fs::load_floor_plan
+        let floor_plan: Vec<(Vec2, Vec2)> = fs::segs_from_file("map01.txt");
         let camera3d: vecs::Vec3 = Default::default();
         let fov: f32 = 80.0_f32.to_radians();
         let cooler_floor_plan = floor_plan.into_iter()
