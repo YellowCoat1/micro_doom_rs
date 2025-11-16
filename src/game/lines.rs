@@ -3,6 +3,7 @@ use std::ops::{Add, Sub, Mul};
 
 use super::vecs::Vec2;
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LineSegment {
     pub start: Vec2,
     pub end: Vec2,
@@ -140,7 +141,7 @@ fn intersection_point(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
 
 /// Treats the first line as an infinite line and the second as a segment. Returns the intersection
 /// point if it lies on the segment, None otherwise.
-fn intersection_point_segment(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
+pub fn intersection_point_segment(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
     let p = intersection_point(a, b)?;
 
     // Check x bounds for segment b
