@@ -1,4 +1,5 @@
 use ggez::{Context, graphics::{Canvas, Color}};
+use std::ops::Add;
 
 use super::vecs::Vec2;
 
@@ -28,6 +29,15 @@ impl Polygon {
             color,
         ).unwrap();
         canvas.draw(&poly, ggez::graphics::DrawParam::default())
+    }
+}
+
+impl Add<Vec2> for Polygon {
+    type Output = Polygon;
+
+    fn add(self, rhs: Vec2) -> Self::Output {
+        let new_points = self.points.iter().map(|p| *p + rhs).collect();
+        Polygon::new(new_points)
     }
 }
 
