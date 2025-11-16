@@ -201,7 +201,7 @@ pub fn intersection_point_segment(a: &LineSegment, b: &LineSegment) -> Option<Ve
 }
 
 /// Checks if two line segments intersect. Returns true if they do, false otherwise.
-fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
+pub fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
     let p = if let Some(p) = intersection_point(a, b) {
         p
     }
@@ -269,7 +269,7 @@ pub fn split_line(a: &LineSegment, b: &LineSegment) -> Option<(LineSegment, Line
     Some((seg1, seg2))
 }
 
-pub fn midpoint(seg: &LineSegment) -> Vec2 {
+fn midpoint(seg: &LineSegment) -> Vec2 {
     Vec2 {
         x: (seg.start.x + seg.end.x) * 0.5,
         y: (seg.start.y + seg.end.y) * 0.5,

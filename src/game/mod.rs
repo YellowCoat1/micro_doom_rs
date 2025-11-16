@@ -8,6 +8,7 @@ mod cam;
 mod skybox;
 mod fs;
 mod bsp;
+mod colls;
 use lines::LineSegment;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
 use ggez::input::keyboard::KeyCode;
@@ -23,7 +24,8 @@ static RAND_32: Lazy<u32> = Lazy::new(|| {
     rand::rng().random()
 });
 
-use crate::game::lines::LineSegment3;
+use crate::game::colls::attempt_move;
+use crate::game::lines::{LineSegment3, do_lines_intersect};
 
 use bsp::BSPNode;
 
@@ -93,14 +95,13 @@ impl GameState {
         }
     }
 }
-
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let forward = self.cam.forward_vector();
         dbg!("Camera pos: {:?}", self.cam.pos);
         let delta = ctx.time.delta().as_secs_f32();
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
-            self.cam.pos = self.cam.pos + forward * 3.0 * delta;
+            attempt_move(self, ctx);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Down) {
             self.cam.pos = self.cam.pos - forward * 3.0 * delta;

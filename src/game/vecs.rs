@@ -50,6 +50,13 @@ impl Default for Vec3 {
     }
 }
 
+impl Into<Vec2> for Vec3 {
+    fn into(self) -> Vec2 {
+        Vec2 { x: self.x, y: self.z }
+    }
+}
+
+
 impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Vec3 { x, y, z }
