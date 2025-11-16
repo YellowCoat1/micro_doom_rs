@@ -1,8 +1,30 @@
+use ggez::{Context, graphics::{Canvas, Color, Mesh}, mint::Point2};
+
 use super::vecs::Vec2;
 
 pub struct LineSegment {
     pub start: Vec2,
     pub end: Vec2,
+}
+
+impl LineSegment {
+    pub fn draw(&self, ctx: &mut Context, canvas: &mut Canvas, color: Color) {
+        let point1 = Point2 {
+            x: self.start.x,
+            y: self.start.y,
+        };
+        let point2 = Point2 {
+            x: self.end.x,
+            y: self.end.y,
+        };
+        let line = Mesh::new_line(
+            ctx,
+            &[point1, point2],
+            10.0,
+            color
+        ).unwrap();
+        canvas.draw(&line, ggez::graphics::DrawParam::default())
+    }
 }
 
 
