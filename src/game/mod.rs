@@ -5,6 +5,7 @@ mod lines;
 mod array;
 mod polygons;
 mod cam;
+mod skybox;
 use lines::LineSegment;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
 use ggez::input::keyboard::KeyCode;
@@ -111,8 +112,9 @@ impl event::EventHandler for GameState {
 
 fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult<()> {
     // Drawing logic here
-
     let (width, height) = ctx.gfx.size();
+
+    skybox::draw_skybox(game_state, canvas, width as f32, height as f32)?;
 
 
     let aspect = width/height;
