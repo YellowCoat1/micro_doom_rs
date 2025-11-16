@@ -6,6 +6,7 @@ mod array;
 mod polygons;
 mod cam;
 use ggez::GameError;
+use ggez::timer::time_since_start;
 use lines::LineSegment;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
 use ggez::graphics::{DrawMode, Mesh};
@@ -55,7 +56,7 @@ impl GameState {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
         let floor_plan: Vec<(Vec2, Vec2)> = vec![
-            (Vec2::new(1.0, 1.0), Vec2::new(1.0, 2.0)),
+            (Vec2::new(1.0, 1.0), Vec2::new(1.0, -3.0)),
         ];
 
         let mut camera3d: vecs::Vec3 = Default::default();
@@ -93,10 +94,18 @@ impl event::EventHandler for GameState {
 fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult<()> {
     // Drawing logic here
 
-    let mut parsed_walls = vec![];
-    for (wall_segment, color) in game_state.walls.iter() {
+    let (width, height) = ctx.gfx.size();
 
-        // if the wall segment intersects with the camera, set a point of that wall segment to the closer point
+
+    let aspect = width/height;
+
+    let (frustum_left_ray, frustum_right_ray) = game_state.cam.frustum_cam_rays(aspect); 
+
+    let mut parsed_walls = vec![];
+    for (wall_seg, color) in game_state.walls.iter() {
+
+        let wall_segment = wall_camera_intersect((frustum_left_ray, frustum_right_ray), *wall_seg);
+        println!("wall seg {:?}", wall_segment);
 
         let wall_point_set = wall_floor_to_3d(&wall_segment.start, &wall_segment.end);
         let mut wall: Vec<Vec2> = vec![];
@@ -112,9 +121,8 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
         parsed_walls.push((Polygon::new(wall), color));
     }
 
-    let scale: Vec2 = ((800.0/2.0), (600.0/2.0)).into();
+    let scale: Vec2 = ((width/2.0), (height/2.0)).into();
     for (wall, color) in parsed_walls.iter(){
-        println!("poly_len {:?}", wall.points.len());
         for point in wall.points.iter(){
             println!("Points: {},{}", point.x, point.y);
         }
@@ -124,6 +132,38 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
 
 
     Ok(())
+}
+
+fn wall_camera_intersect(fulcs: (LineSegment, LineSegment), wall_seg: LineSegment) -> LineSegment {
+    let left = wall_camera_intersect_one(fulcs.0, wall_seg);
+    if left != wall_seg {
+        return left;
+    }
+    let right = wall_camera_intersect_one(fulcs.1, wall_seg);
+    if right != wall_seg {
+        return right;
+    }
+    wall_seg
+}
+
+fn wall_camera_intersect_one(fulc: LineSegment, mut wall_seg: LineSegment) -> LineSegment {
+        let intersection: Vec2 = match lines::intersection_point_segment(&fulc, &wall_seg) {
+            Some(mut a) => {
+                a.y += 0.1;
+                a
+            },
+            _ => {
+                return wall_seg
+            }
+        };
+        println!("start: {} end: {} inter: {}", wall_seg.start.y, wall_seg.end.y, intersection.y);
+        if wall_seg.start.y < intersection.y{
+            wall_seg.start = intersection;
+        } else if wall_seg.end.y < intersection.y {
+            wall_seg.end = intersection;
+        } 
+
+        wall_seg
 }
 
 fn random_color() -> Color{

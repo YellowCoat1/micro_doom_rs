@@ -119,27 +119,22 @@ impl LineSegment {
     }
 }
 
-// returns slope and offset
-fn points_to_slope(point1: Vec2, point2: Vec2) -> (f32, f32) {
-    let m = (point2.y - point1.y) / (point2.x - point1.x);
-    let b = point1.y - m * point1.x;
-    (m, b)
-}
 
 /// Finds the intersection point of two lines. Note that this is lines, NOT line segments, so the
 /// point may lie outside the segments. If the lines are parallel, returns None.
 fn intersection_point(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
-    let (m1, b1) = points_to_slope(a.start, a.end);
-    let (m2, b2) = points_to_slope(b.start, b.end);
-    if m1  == m2 {
-        return None; // parallel lines
+    let denom = (a.start.x - a.end.x) * (b.start.y - b.end.y) - (a.start.y - a.end.y) * (b.start.x - b.end.x);
+    if denom == 0.0 {
+        return None
     }
-    let x = (b2 - b1) / (m1 - m2);
-    let y = m1 * x + b1;
-    Some(Vec2::new(x, y))
+    let top = (a.start.x - b.start.x)*(b.start.y - b.end.y) - (a.start.y - b.start.y)*(b.start.x - b.end.x);
+
+    let calced = top/denom;
+
+    Some(a.start+(a.end-a.start) * calced)
 }
 
-/// Treats the first line as an infinite line and the second as a segment. Returns the intersection
+/// Treats the first line as a ray and the second as a segment. Returns the intersection
 /// point if it lies on the segment, None otherwise.
 pub fn intersection_point_segment(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
     let p = intersection_point(a, b)?;
@@ -148,6 +143,21 @@ pub fn intersection_point_segment(a: &LineSegment, b: &LineSegment) -> Option<Ve
     if p.x < b.start.x.min(b.end.x) || p.x > b.start.x.max(b.end.x) {
        return None;
     }
+
+    if a.start.x > a.end.x {
+        if p.x > a.start.x {
+            return None
+        }
+    } else if a.start.x < a.end.x {
+        if p.x < a.start.x {
+            return None
+        }
+    } else {
+        if p.x != a.start.x {
+            return None
+        }
+    }
+
 
     Some(p)
 }
