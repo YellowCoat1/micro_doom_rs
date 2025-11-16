@@ -2,6 +2,8 @@
 mod vecs;
 mod a3d_to_2d;
 mod lines;
+mod array;
+mod polygons;
 use lines::LineSegment;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
 use ggez::graphics::{DrawMode, Mesh};
