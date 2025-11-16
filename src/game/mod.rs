@@ -7,6 +7,7 @@ mod polygons;
 mod cam;
 use lines::LineSegment;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
+use ggez::input::keyboard::KeyCode;
 use vecs::{Vec2, Vec3};
 use rand::Rng;
 use cam::Camera;
@@ -52,7 +53,9 @@ impl GameState {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
         let floor_plan: Vec<(Vec2, Vec2)> = vec![
-            (Vec2::new(1.0, 1.0), Vec2::new(1.0, -3.0)),
+            (Vec2::new(2.0, 1.0), Vec2::new(2.0, 2.0)),
+            (Vec2::new(2.0, 2.0), Vec2::new(3.0, 3.2)),
+            (Vec2::new(3.0, 3.2), Vec2::new(3.0, 1.0))
         ];
 
         let camera3d: vecs::Vec3 = Default::default();
@@ -74,7 +77,18 @@ impl GameState {
 
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        // Update game logic here
+        if ctx.keyboard.is_key_pressed(KeyCode::Up) {
+            self.cam.pos.z += 0.01;
+        }
+        if ctx.keyboard.is_key_pressed(KeyCode::Down) {
+            self.cam.pos.z -= 0.01;
+        }
+        if ctx.keyboard.is_key_pressed(KeyCode::Left) {
+            self.cam.pos.x -= 0.01;
+        }
+        if ctx.keyboard.is_key_pressed(KeyCode::Right) {
+            self.cam.pos.x += 0.01;
+        }
         Ok(())
     }
 

@@ -14,6 +14,9 @@ impl Polygon {
         Self { points }
     }
     pub fn draw_filled(&self, ctx: &mut Context, canvas: &mut Canvas, color: Color) {
+        if self.points.len() < 3 {
+            return;
+        }
         let poly = ggez::graphics::Mesh::new_polygon(
             ctx,
             ggez::graphics::DrawMode::fill(),
@@ -23,6 +26,9 @@ impl Polygon {
         canvas.draw(&poly, ggez::graphics::DrawParam::default())
     }
     pub fn draw_unfilled(&self, ctx: &mut Context, canvas: &mut Canvas, color: Color) {
+        if self.points.len() < 3 {
+            return;
+        }
         let poly = ggez::graphics::Mesh::new_polygon(
             ctx,
             ggez::graphics::DrawMode::stroke(1.5),
