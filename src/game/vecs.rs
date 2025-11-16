@@ -125,6 +125,17 @@ impl Add for Vec2 {
     }
 }
 
+impl Add<f32> for Vec2 {
+    type Output = Vec2;
+
+    fn add(self, scalar: f32) -> Vec2 {
+        Vec2 {
+            x: self.x + scalar,
+            y: self.y + scalar,
+        }
+    }
+}
+
 
 impl Sub for Vec2 {
     type Output = Vec2;
@@ -137,6 +148,17 @@ impl Sub for Vec2 {
     }
 }
 
+
+impl Sub<f32> for Vec2 {
+    type Output = Vec2;
+
+    fn sub(self, scalar: f32) -> Vec2 {
+        Vec2 {
+            x: self.x - scalar,
+            y: self.y - scalar,
+        }
+    }
+}
 
 impl Mul<f32> for Vec2 {
     type Output = Vec2;
@@ -168,6 +190,17 @@ impl Add for Vec3 {
     }
 }
 
+impl Add<f32> for Vec3 {
+    type Output = Vec3;
+    fn add(self, scalar: f32) -> Vec3 {
+        Vec3 {
+            x: self.x + scalar,
+            y: self.y + scalar,
+            z: self.z + scalar,
+        }
+    }
+}
+
 impl Sub for Vec3 {
     type Output = Vec3;
     fn sub(self, other: Vec3) -> Vec3 {
@@ -175,6 +208,17 @@ impl Sub for Vec3 {
             x: self.x - other.x,
             y: self.y - other.y,
             z: self.z - other.z,
+        }
+    }
+}
+
+impl Sub<f32> for Vec3 {
+    type Output = Vec3;
+    fn sub(self, scalar: f32) -> Vec3 {
+        Vec3 {
+            x: self.x - scalar,
+            y: self.y - scalar,
+            z: self.z - scalar,
         }
     }
 }
