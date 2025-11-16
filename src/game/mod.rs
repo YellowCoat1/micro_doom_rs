@@ -9,35 +9,37 @@ use lines::LineSegment;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
 use ggez::graphics::{DrawMode, Mesh};
 use vecs::{Vec2, Vec3};
+use rand::Rng;
 
 use polygons::Polygon;
 
 pub struct GameState {
     camera3d: Vec3,
-    walls:Vec<Polygon>
+    walls:Vec<(Polygon, Color)>
 }
 
 fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> Vec<Vec3> {
     let mut three_d_point = vec![];
+    let base = -5.0;
     let offset_up = 10.0;
     three_d_point.push(Vec3 {
         x: wall_left.x,
-        y: 1.0,
+        y: base,
         z: wall_left.y
     });
     three_d_point.push(Vec3 {
         x: wall_left.x,
-        y: offset_up,
+        y: base+offset_up,
         z: wall_left.y
     });
     three_d_point.push(Vec3 {
         x: wall_right.x,
-        y: offset_up,
+        y: base+offset_up,
         z: wall_right.y
     });
     three_d_point.push(Vec3 {
         x: wall_right.x,
-        y: 1.0,
+        y: base,
         z: wall_right.y
     });
     three_d_point
@@ -48,7 +50,9 @@ impl GameState {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
         let floor_plan: Vec<(Vec2, Vec2)> = vec![
-            ((10.0, 10.0).into(), (10.0, 20.0).into()),
+            (Vec2::new(10.0, 5.0), Vec2::new(10.0, 10.0)),
+            (Vec2::new(10.0, 10.0), Vec2::new(0.0, 10.0)),
+            (Vec2::new(0.0, 10.0), Vec2::new(-20.0, 10.0)),
         ];
 
         let mut camera3d: vecs::Vec3 = Default::default();
@@ -61,13 +65,13 @@ impl GameState {
             for wall_point in wall_point_set {
                 match a3d_to_2d::a3d_to_2d(wall_point, camera3d, camera_distance) {
                     Some(s) => wall.push(Vec2 {
-                        x: s.x + 50.0,
-                        y: s.y + 50.0, 
+                        x: s.x,
+                        y: s.y, 
                     }),
                     None => continue,
                 }
             };
-            parsed_walls.push(Polygon::new(wall));
+            parsed_walls.push((Polygon::new(wall), random_color()));
         }
         GameState {
             // Initialize game state here
@@ -116,14 +120,24 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
             y: 0.0,
         }
     };*/
-    for wall in game_state.walls[0].points.iter() {
-        println!("{} {}", wall.x, wall.y)
-    }
-    for wall in game_state.walls.iter(){
-        wall.draw_filled(ctx, canvas, Color::BLACK);
+    let scale: Vec2 = ((800.0/2.0), (600.0/2.0)).into();
+    for (wall, color) in game_state.walls.iter(){
+        println!("poly_len {:?}", wall.points.len());
+        for point in wall.points.iter(){
+            println!("Points: {},{}", point.x, point.y);
+        }
+        (wall.clone()+scale).draw_filled(ctx, canvas, *color);
     }
     //line_seg.draw(ctx, canvas, Color::BLACK);
 
 
     Ok(())
+}
+
+fn random_color() -> Color{
+    let mut rng = rand::rng();
+    let r: u8 = rng.random();
+    let g: u8 = rng.random();
+    let b: u8 = rng.random();
+    Color::from_rgb(r, g, b)
 }
