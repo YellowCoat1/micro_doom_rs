@@ -3,6 +3,7 @@ use std::ops::Add;
 
 use super::vecs::Vec2;
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Polygon {
     pub points: Vec<Vec2>,
 }
