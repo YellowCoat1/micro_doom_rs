@@ -97,6 +97,7 @@ impl GameState {
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let forward = self.cam.forward_vector();
+        dbg!("Camera pos: {:?}", self.cam.pos);
         let delta = ctx.time.delta().as_secs_f32();
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
             self.cam.pos = self.cam.pos + forward * 3.0 * delta;

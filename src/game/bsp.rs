@@ -48,7 +48,6 @@ fn classify_segment(partition: LineSegment, segment: LineSegment) -> (Option<Lin
         end_side = start_side;
     }
 
-             segment.start, segment.end, start_side, end_side);
 
     match (start_side, end_side) {
         (Order::On, Order::On) => {
