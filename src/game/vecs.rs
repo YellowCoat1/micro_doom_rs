@@ -17,11 +17,23 @@ impl Vec2 {
     }
 }
 
+impl Default for Vec2 {
+    fn default() -> Self {
+        Vec2 { x: 0.0, y: 0.0 }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
+}
+
+impl Default for Vec3 {
+    fn default() -> Self {
+        Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    }
 }
 
 impl Vec3 {
