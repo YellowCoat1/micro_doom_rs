@@ -114,7 +114,7 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
     // Drawing logic here
     let (width, height) = ctx.gfx.size();
 
-    skybox::draw_skybox(game_state, canvas, width as f32, height as f32)?;
+    skybox::draw_skybox(game_state, ctx, canvas, width as f32, height as f32)?;
 
 
     let aspect = width/height;
