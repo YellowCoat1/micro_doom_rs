@@ -1,4 +1,4 @@
-use super::vecs::Vec2;
+use super::vecs::{Vec2, Vec3};
 use nalgebra_glm as glm;
 use glm::DVec2;
 

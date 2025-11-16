@@ -14,6 +14,8 @@ use cam::Camera;
 
 use polygons::Polygon;
 
+use crate::game::array::ror_vec3_yaw;
+
 
 
 pub struct GameState {
@@ -69,6 +71,7 @@ impl GameState {
             cam: Camera {
                 pos: camera3d,
                 fov,
+                yaw: 0.0,
             },
             walls: cooler_floor_plan,
         }
@@ -114,7 +117,11 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
     let mut parsed_walls = vec![];
     for (wall_seg, color) in game_state.walls.iter() {
 
-        let wall_segment = cam::wall_camera_intersect((frustum_left_ray, frustum_right_ray), *wall_seg);
+        // wall_seg: LineSegment
+        let rotated_wall_seg = rotate_seg(*wall_seg, &game_state.cam);
+    
+
+        let wall_segment = cam::wall_camera_intersect((frustum_left_ray, frustum_right_ray), rotated_wall_seg);
         println!("wall seg {:?}", wall_segment);
 
         let wall_point_set = wall_floor_to_3d(&wall_segment.start, &wall_segment.end);
@@ -150,3 +157,41 @@ fn random_color() -> Color{
     let b: u8 = rng.random();
     Color::from_rgb(r, g, b)
 }
+
+
+fn rotate_seg(seg: LineSegment, cam: &Camera) -> LineSegment {
+    //Repect them to Cam
+    /*let seg_start_3d = Vec3 {
+        x: seg.start.x,
+        y: 0.0,
+        z: seg.start.y
+    };
+    let seg_end_3d = Vec3 {
+        x: seg.end.x,
+        y: 0.0,
+        z: seg.start.y
+    };
+    let start_relative: Vec3 = seg_start_3d - cam.pos;
+    let end_relative: Vec3 = seg_end_3d - cam.pos;
+
+    //Rotate
+    let start_rotated: Vec3 = ror_vec3_yaw(start_relative, cam.yaw);
+    let end_rotated: Vec3 = ror_vec3_yaw(end_relative, cam.yaw);
+
+    let start_3d = start_rotated + cam.pos;
+    let end_3d = end_rotated + cam.pos;
+
+    let final_start = Vec2 {
+        x: start_3d.x,
+        y: start_3d.z,
+    };
+
+    let final_end: Vec2 = Vec2 {
+        x: end_3d.x,
+        y: end_3d.z
+    };
+
+    (final_start, final_end).into()
+    */
+    seg
+}   
