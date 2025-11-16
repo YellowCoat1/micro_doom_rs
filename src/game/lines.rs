@@ -1,5 +1,5 @@
 use ggez::{Context, graphics::{Canvas, Color, Mesh}, mint::Point2};
-use std::ops::{Add, Sub};
+use std::ops::{Add, Sub, Mul};
 
 use super::vecs::Vec2;
 
@@ -59,6 +59,29 @@ impl Sub for LineSegment {
         }
     }
 }
+
+impl Add<f32> for LineSegment {
+    type Output = LineSegment;
+
+    fn add(self, scalar: f32) -> LineSegment {
+        LineSegment {
+            start: self.start + Vec2::new(scalar, scalar),
+            end: self.end + Vec2::new(scalar, scalar),
+        }
+    }
+}
+
+impl Mul<f32> for LineSegment {
+    type Output = LineSegment;
+
+    fn mul(self, scalar: f32) -> LineSegment {
+        LineSegment {
+            start: self.start * scalar,
+            end: self.end * scalar,
+        }
+    }
+}
+
 
 impl LineSegment {
     pub fn draw(&self, ctx: &mut Context, canvas: &mut Canvas, color: Color) {
