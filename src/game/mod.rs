@@ -7,6 +7,7 @@ mod polygons;
 mod cam;
 mod skybox;
 mod fs;
+mod bsp;
 use lines::LineSegment;
 use ggez::{Context, GameResult, event, graphics, graphics::Color};
 use ggez::input::keyboard::KeyCode;
