@@ -50,7 +50,7 @@ impl LineSegment {
         let line = Mesh::new_line(
             ctx,
             &[point1, point2],
-            10.0,
+            1.5,
             color
         ).unwrap();
         canvas.draw(&line, ggez::graphics::DrawParam::default())
