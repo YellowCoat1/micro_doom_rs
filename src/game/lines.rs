@@ -138,6 +138,18 @@ fn intersection_point(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
     Some(Vec2::new(x, y))
 }
 
+/// Treats the first line as an infinite line and the second as a segment. Returns the intersection
+/// point if it lies on the segment, None otherwise.
+fn intersection_point_segment(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
+    let p = intersection_point(a, b)?;
+
+    // Check x bounds for segment b
+    if p.x < b.start.x.min(b.end.x) || p.x > b.start.x.max(b.end.x) {
+        return None;
+
+    Some(p)
+}
+
 /// Checks if two line segments intersect. Returns true if they do, false otherwise.
 fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
     let p = if let Some(p) = intersection_point(a, b) {
