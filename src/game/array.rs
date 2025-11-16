@@ -11,3 +11,9 @@ pub fn ror_vec2(vec: Vec2, r: f32) -> Vec2 {
     let y = vec.x * r.sin() + vec.y * r.cos();
     (x,y).into()
 }
+
+pub fn ror_vec3_yaw(vec: Vec3, r: f32) -> Vec3 {
+    let x = vec.x * r.cos() - vec.z * r.sin();
+    let z = vec.x * r.sin() + vec.z * r.cos();
+    (x, vec.y, z).into()
+}
