@@ -1,5 +1,6 @@
 use std::ops::{Add, Sub, Mul, Div};
 use nalgebra_glm::{Vec2 as GlmVec2, Vec3 as GlmVec3};
+use ggez::mint::Point2;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vec2 {
@@ -51,6 +52,53 @@ impl From<Vec2> for GlmVec2 {
 impl From<Vec3> for GlmVec3 {
     fn from(v: Vec3) -> Self {
         GlmVec3::new(v.x, v.y, v.z)
+    }
+}
+
+impl From<Point2<f32>> for Vec2 {
+    fn from(p: Point2<f32>) -> Self {
+        Vec2 { x: p.x, y: p.y }
+    }
+}
+
+impl From<Vec2> for Point2<f32> {
+    fn from(v: Vec2) -> Self {
+        Point2 { x: v.x, y: v.y }
+    }
+}
+
+impl From<(f32, f32)> for Vec2 {
+    fn from(t: (f32, f32)) -> Self {
+        Vec2 { x: t.0, y: t.1 }
+    }
+}
+
+impl From<Vec2> for (f32, f32) {
+    fn from(v: Vec2) -> Self {
+        (v.x, v.y)
+    }
+}
+
+impl From<[f32; 2]> for Vec2 {
+    fn from(arr: [f32; 2]) -> Self {
+        Vec2 { x: arr[0], y: arr[1] }
+    }
+}
+impl From<Vec2> for [f32; 2] {
+    fn from(v: Vec2) -> Self {
+        [v.x, v.y]
+    }
+}
+
+impl From<(f32, f32, f32)> for Vec3 {
+    fn from(t: (f32, f32, f32)) -> Self {
+        Vec3 { x: t.0, y: t.1, z: t.2 }
+    }
+}
+
+impl From<Vec3> for (f32, f32, f32) {
+    fn from(v: Vec3) -> Self {
+        (v.x, v.y, v.z)
     }
 }
 

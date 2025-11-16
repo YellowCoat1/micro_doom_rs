@@ -7,6 +7,36 @@ pub struct LineSegment {
     pub end: Vec2,
 }
 
+impl From<LineSegment> for (Vec2, Vec2) {
+    fn from(line: LineSegment) -> Self {
+        (line.start, line.end)
+    }
+}
+
+impl From<(Vec2, Vec2)> for LineSegment {
+    fn from(points: (Vec2, Vec2)) -> Self {
+        Self {
+            start: points.0,
+            end: points.1,
+        }
+    }
+}
+
+impl From<(f32, f32, f32, f32)> for LineSegment {
+    fn from(coords: (f32, f32, f32, f32)) -> Self {
+        Self {
+            start: Vec2::new(coords.0, coords.1),
+            end: Vec2::new(coords.2, coords.3),
+        }
+    }
+}
+
+impl From<LineSegment> for (f32, f32, f32, f32) {
+    fn from(line: LineSegment) -> Self {
+        (line.start.x, line.start.y, line.end.x, line.end.y)
+    }
+}
+
 impl LineSegment {
     pub fn draw(&self, ctx: &mut Context, canvas: &mut Canvas, color: Color) {
         let point1 = Point2 {
