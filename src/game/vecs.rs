@@ -26,6 +26,9 @@ impl Vec2 {
             }
         }
     }
+    pub fn dot(&self, other: &Vec2) -> f32 {
+        self.x * other.x + self.y * other.y
+    }
 }
 
 impl Default for Vec2 {

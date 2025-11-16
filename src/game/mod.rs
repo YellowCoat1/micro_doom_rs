@@ -23,12 +23,16 @@ static RAND_32: Lazy<u32> = Lazy::new(|| {
     rand::rng().random()
 });
 
-use crate::game::a3d_to_2d::*;
 use crate::game::lines::LineSegment3;
+
+use bsp::BSPNode;
+
 
 pub struct GameState {
     cam: Camera,
-    walls:Vec<LineSegment>
+    bsp: BSPNode,
+    // backup
+    walls: Vec<LineSegment>,
 }
 
 fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> (LineSegment3, LineSegment3) {
@@ -68,9 +72,12 @@ impl GameState {
         let floor_plan: Vec<(Vec2, Vec2)> = fs::segs_from_file("map01.txt");
         let camera3d: vecs::Vec3 = Default::default();
         let fov: f32 = 80.0_f32.to_radians();
-        let cooler_floor_plan = floor_plan.into_iter()
-            .map(|v| v.into())
-            .collect::<Vec<_>>();
+        
+        let floor_plan_segs = floor_plan.iter()
+            .map(|(s, e)| LineSegment { start: *s, end: *e })
+            .collect::<Vec<LineSegment>>();
+
+        let bsp = BSPNode::new(floor_plan_segs);
 
         GameState {
             // Initialize game state here
@@ -80,7 +87,8 @@ impl GameState {
                 yaw: 0.0,
                 near: 0.1,
             },
-            walls: cooler_floor_plan,
+            bsp, 
+            walls: floor_plan.iter().map(|(s, e)| LineSegment { start: *s, end: *e }).collect(),
         }
     }
 }
@@ -119,7 +127,18 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
 
     skybox::draw_skybox(game_state, ctx, canvas, width as f32, height as f32)?;
 
-    for wall_segment in game_state.walls.iter() {
+    let cam_pos_2d = Vec2 {
+        x: game_state.cam.pos.x,
+        y: game_state.cam.pos.z,
+    };
+
+    let mut out_vec = game_state.bsp.order(cam_pos_2d);
+
+    if out_vec.is_empty() {
+        out_vec = game_state.walls.clone();
+    }
+
+    for wall_segment in out_vec.iter() {
         let color = random_color((wall_segment.start, wall_segment.end));
         //let rotated_wall_seg = cam::rotate_seg(*wall_segment, &game_state.cam);
         let wall_3d_segs = wall_floor_to_3d(&wall_segment.start, &wall_segment.end);

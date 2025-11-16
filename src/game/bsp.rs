@@ -1,36 +1,130 @@
-use binary_space_partition::{Plane, BspNode, PlaneCut};
-use super::LineSegment;
-use super::lines::{point_side_of_line, Order, split_line};
+use crate::game::lines::{Order, split_line};
+use super::vecs::Vec2;
+use super::lines::LineSegment;
 
-impl Plane for LineSegment {
-    fn cut(&self, other: Self) -> PlaneCut<Self> {
-        use Order::*;
+pub struct BSPNode {
+    partition: LineSegment,
+    front: Option<Box<BSPNode>>,
+    back: Option<Box<BSPNode>>,
+}
 
-        if self.is_aligned(&other) {
-            return PlaneCut::Sibling(other);
+const EPSILON: f32 = 1e-5;
+fn almost_equal(a: f32, b: f32) -> bool {
+    (a - b).abs() < EPSILON
+}
+
+fn normalize_partition(mut partition: LineSegment) -> LineSegment {
+    if partition.start.x > partition.end.x
+        || (partition.start.x == partition.end.x && partition.start.y > partition.end.y)
+    {
+        std::mem::swap(&mut partition.start, &mut partition.end);
+    }
+    partition
+}
+
+
+fn point_side_of_line(line: &LineSegment, point: &Vec2) -> Order {
+    // cross = (line ->) x (line->point)
+    let cross = (line.end.x - line.start.x) * (point.y - line.start.y)
+              - (line.end.y - line.start.y) * (point.x - line.start.x);
+    if cross > EPSILON { Order::Left }
+    else if cross < -EPSILON { Order::Right }
+    else { Order::On }
+}
+
+
+fn is_degenerate(seg: &LineSegment) -> bool {
+    almost_equal(seg.start.x, seg.end.x) && almost_equal(seg.start.y, seg.end.y)
+}
+fn classify_segment(partition: LineSegment, segment: LineSegment) -> (Option<LineSegment>, Option<LineSegment>) {
+    let mut start_side = point_side_of_line(&partition, &segment.start);
+    let mut end_side   = point_side_of_line(&partition, &segment.end);
+
+    // If one endpoint is On, treat it as being on the same side as the other endpoint.
+    // This avoids unnecessary splits into zero-length pieces.
+    if start_side == Order::On && end_side != Order::On {
+        start_side = end_side;
+    } else if end_side == Order::On && start_side != Order::On {
+        end_side = start_side;
+    }
+
+    println!("Classifying segment from {:?} to {:?}: start_side={:?}, end_side={:?}",
+             segment.start, segment.end, start_side, end_side);
+
+    match (start_side, end_side) {
+        (Order::On, Order::On) => {
+            // perfectly colinear: keep it on the front side (or choose whichever side you prefer)
+            (Some(segment), None)
         }
-        // designate a bin for the left side
-        let mut left: Vec<LineSegment> = vec![];
-        // same for right
-        let mut right: Vec<LineSegment> = vec![];
-
-        // cut the other line segment by this segment
-        match (point_side_of_line(self, &other.start), point_side_of_line(self, &other.end)) {
-            // if both endpoints are on the same side, return the appropriate child
-            (Left, Left) => left.push(other),
-            (Right, Right) => right.push(other),
-            // looks like the line *isn't* on one side. It chose this path, now it must walk it.
-            _ => {
-                let (left_side, right_side) = split_line(&self, &other);
-                left.push(left_side);
-                right.push(right_side);
+        (Order::Left, Order::Left) => (Some(segment), None),
+        (Order::Right, Order::Right) => (None, Some(segment)),
+        // different sides -> actually split
+        _ => {
+            if let Some((left, right)) = split_line(&partition, &segment) {
+                // Guard against degenerate zero-length pieces produced by split_line
+                let left_opt = if is_degenerate(&left) { None } else { Some(left) };
+                let right_opt = if is_degenerate(&right) { None } else { Some(right) };
+                println!("Segment split into left: {:?}, right: {:?}", left_opt, right_opt);
+                (left_opt, right_opt)
+            } else {
+                // split_line couldn't split for some reason — be conservative
+                (Some(segment), None)
             }
         }
-
-        PlaneCut::Cut { front: left, back: right }
     }
-    fn is_aligned(&self, other: &Self) -> bool {
-       point_side_of_line(self, &other.start) == Order::On &&
-       point_side_of_line(self, &other.end) == Order::On
+}
+
+impl BSPNode {
+    pub fn new(partitions: Vec<LineSegment>) -> Self {
+        if partitions.is_empty() {
+            panic!("Cannot create BSPNode with no partitions");
+        }
+        let partition = normalize_partition(partitions[0].clone());
+        let mut front_partitions: Vec<LineSegment> = Vec::new();
+        let mut back_partitions: Vec<LineSegment> = Vec::new();
+
+        for part in partitions.iter().skip(1) {
+            let normalized_part = normalize_partition(part.clone());
+            
+            let (front, back) = classify_segment(partition.clone(), normalized_part.clone());
+            if let Some(f) = front {
+                front_partitions.push(f);
+            }
+            if let Some(b) = back {
+                back_partitions.push(b);
+            }
+        }
+        BSPNode {
+            partition,
+            front: if front_partitions.is_empty() { None } else { Some(Box::new(BSPNode::new(front_partitions))) },
+            back: if back_partitions.is_empty() { None } else { Some(Box::new(BSPNode::new(back_partitions))) },
+        }
+    }
+    pub fn order(&self, position: Vec2) -> Vec<LineSegment> {
+        let side = point_side_of_line(&self.partition, &position);
+        let mut ordered_segments = Vec::new();
+        match side {
+            Order::Left | Order::On => {
+                if let Some(back_node) = &self.back {
+                    ordered_segments.extend(back_node.order(position));
+                }
+                ordered_segments.push(self.partition.clone());
+
+                if let Some(front_node) = &self.front {
+                    ordered_segments.extend(front_node.order(position));
+                }
+            }
+            Order::Right => {
+                if let Some(front_node) = &self.front {
+                    ordered_segments.extend(front_node.order(position));
+                }
+                ordered_segments.push(self.partition.clone());
+
+                if let Some(back_node) = &self.back {
+                    ordered_segments.extend(back_node.order(position));
+                }
+            }
+        }
+        ordered_segments
     }
 }

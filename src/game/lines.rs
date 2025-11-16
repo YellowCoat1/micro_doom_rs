@@ -225,21 +225,57 @@ fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
 //
 // Panics if the lines do not intersect (that means they're parallel. use do_lines_intersect or
 // point_side_of_line to check)
-pub fn split_line(a: &LineSegment, b: &LineSegment) -> (LineSegment, LineSegment) {
-    let p = intersection_point(a, b).expect("Lines do not intersect");
+/// Splits line segment `b` into two segments by intersecting it with the infinite line defined by `a`.
+/// Panics if the lines are parallel or coincident.
+pub fn split_line(a: &LineSegment, b: &LineSegment) -> Option<(LineSegment, LineSegment)> {
+    let x1 = a.start.x;
+    let y1 = a.start.y;
+    let x2 = a.end.x;
+    let y2 = a.end.y;
+
+    let x3 = b.start.x;
+    let y3 = b.start.y;
+    let x4 = b.end.x;
+    let y4 = b.end.y;
+
+    let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if denom.abs() < f32::EPSILON {
+        return None;
+    }
+
+    let px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom;
+    let py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom;
+
+    let intersection = Vec2 { x: px, y: py };
+
+
+    let within_b = (intersection.x - x3) * (intersection.x - x4) <= 0.0
+        && (intersection.y - y3) * (intersection.y - y4) <= 0.0;
+
+    if !within_b {
+        return None;
+    }
 
     let seg1 = LineSegment {
         start: b.start,
-        end: p,
+        end: intersection,
     };
 
     let seg2 = LineSegment {
-        start: p,
+        start: intersection,
         end: b.end,
     };
 
-    (seg1, seg2)
+    Some((seg1, seg2))
 }
+
+pub fn midpoint(seg: &LineSegment) -> Vec2 {
+    Vec2 {
+        x: (seg.start.x + seg.end.x) * 0.5,
+        y: (seg.start.y + seg.end.y) * 0.5,
+    }
+}
+
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Order {

@@ -167,12 +167,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "binary-space-partition"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88ceb0d16c4fd0e42876e298d7d3ce3780dd9ebdcbe4199816a32c77e08597ff"
-
-[[package]]
 name = "bindgen"
 version = "0.72.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1500,7 +1494,6 @@ dependencies = [
 name = "micro_doom_rs"
 version = "0.1.0"
 dependencies = [
- "binary-space-partition",
  "ggez",
  "nalgebra-glm",
  "once_cell",
