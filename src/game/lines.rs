@@ -1,12 +1,50 @@
 use ggez::{Context, graphics::{Canvas, Color, Mesh}, mint::Point2};
 use std::ops::{Add, Sub, Mul};
 
+use crate::game::vecs::Vec3;
+
 use super::vecs::Vec2;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LineSegment {
     pub start: Vec2,
     pub end: Vec2,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LineSegment3 {
+    pub start: Vec3,
+    pub end: Vec3,
+}
+
+impl LineSegment3 {
+    pub fn new(start: Vec3, end: Vec3) -> Self {
+        Self { start, end }
+    }
+
+    pub fn length(&self) -> f32 {
+        (self.end - self.start).length()
+    }
+
+    pub fn midpoint(&self) -> Vec3 {
+        (self.start + self.end) * 0.5
+    }
+}
+
+
+impl From<LineSegment3> for (Vec3, Vec3) {
+    fn from(line: LineSegment3) -> Self {
+        (line.start, line.end)
+    }
+}
+
+impl From<(Vec3, Vec3)> for LineSegment3 {
+    fn from(points: (Vec3, Vec3)) -> Self {
+        Self {
+            start: points.0,
+            end: points.1,
+        }
+    }
 }
 
 impl From<LineSegment> for (Vec2, Vec2) {

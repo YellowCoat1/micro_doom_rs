@@ -12,42 +12,46 @@ use ggez::input::keyboard::KeyCode;
 use vecs::{Vec2, Vec3};
 use rand::Rng;
 use cam::Camera;
-
 use polygons::Polygon;
 
+use nalgebra_glm as glm;
 
-
+use crate::game::a3d_to_2d::*;
+use crate::game::lines::LineSegment3;
 
 pub struct GameState {
     cam: Camera,
     walls:Vec<(LineSegment, Color)>
 }
 
-fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> Vec<Vec3> {
-    let mut three_d_point = vec![];
-    let base = -3.0;
-    let offset_up = 10.0;
-    three_d_point.push(Vec3 {
-        x: wall_left.x,
-        y: base,
-        z: wall_left.y
-    });
-    three_d_point.push(Vec3 {
-        x: wall_left.x,
-        y: base+offset_up,
-        z: wall_left.y
-    });
-    three_d_point.push(Vec3 {
-        x: wall_right.x,
-        y: base+offset_up,
-        z: wall_right.y
-    });
-    three_d_point.push(Vec3 {
-        x: wall_right.x,
-        y: base,
-        z: wall_right.y
-    });
-    three_d_point
+fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> (LineSegment3, LineSegment3) {
+    let base = -0.75;
+    let offset_up = 1.75;
+    let line_seg = LineSegment3 {
+        start: Vec3 {
+            x: wall_left.x,
+            y: base,
+            z: wall_left.y
+        },
+        end: Vec3 {
+            x: wall_right.x,
+            y: base,
+            z: wall_right.y
+        }
+    };
+    let line_seg_top = LineSegment3 {
+        start: Vec3 {
+            x: wall_left.x,
+            y: base+offset_up,
+            z: wall_left.y
+        },
+        end: Vec3 {
+            x: wall_right.x,
+            y: base+offset_up,
+            z: wall_right.y
+        }
+    };
+    (line_seg, line_seg_top)
 }
 
 impl GameState {
@@ -55,13 +59,15 @@ impl GameState {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
         let floor_plan: Vec<(Vec2, Vec2)> = vec![
-            (Vec2::new(2.0, 1.0), Vec2::new(2.0, 20.0)),
-            (Vec2::new(2.0, 20.0), Vec2::new(30.0, 30.2)),
-            (Vec2::new(30.0, 30.2), Vec2::new(30.0, 1.0))
+            (Vec2::new(1.0, 10.0), Vec2::new(2.0, 6.0)),
+            (Vec2::new(2.0, 6.0), Vec2::new(5.0, 5.0)),
+            (Vec2::new(5.0, 5.0), Vec2::new(7.0, 7.0)),
+            (Vec2::new(7.0, 7.0), Vec2::new(6.0, 10.0)),
+            (Vec2::new(6.0, 10.0), Vec2::new(1.0, 10.0)),
         ];
 
         let camera3d: vecs::Vec3 = Default::default();
-        let fov: f32 = 75.0_f32.to_radians();
+        let fov: f32 = 120.0_f32.to_radians();
         let cooler_floor_plan = floor_plan.into_iter()
             .map(|v| (v.into(), random_color()))
             .collect::<Vec<_>>();
@@ -72,6 +78,7 @@ impl GameState {
                 pos: camera3d,
                 fov,
                 yaw: 0.0,
+                near: 0.1,
             },
             walls: cooler_floor_plan,
         }
@@ -92,10 +99,10 @@ impl event::EventHandler for GameState {
         if ctx.keyboard.is_key_pressed(KeyCode::Right) {
             self.cam.pos.x += 0.01;
         }
-        if (ctx.keyboard.is_key_pressed(KeyCode::J)) {
+        if ctx.keyboard.is_key_pressed(KeyCode::J) {
             self.cam.yaw -= 0.01;
         }
-        if (ctx.keyboard.is_key_pressed(KeyCode::K)) {
+        if ctx.keyboard.is_key_pressed(KeyCode::K) {
             self.cam.yaw += 0.01;
         }
         Ok(())
@@ -116,50 +123,38 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
 
     skybox::draw_skybox(game_state, ctx, canvas, width as f32, height as f32)?;
 
+    for (wall_segment, color) in game_state.walls.iter() {
+        //let rotated_wall_seg = cam::rotate_seg(*wall_segment, &game_state.cam);
+        let wall_3d_segs = wall_floor_to_3d(&wall_segment.start, &wall_segment.end);
 
-    let aspect = width/height;
+        let wall_point_set: Vec<Vec3> = vec![
+            wall_3d_segs.0.start,
+            wall_3d_segs.0.end,
+            wall_3d_segs.1.end,
+            wall_3d_segs.1.start,
+        ];
 
-    let (frustum_left_ray, frustum_right_ray) = game_state.cam.frustum_cam_rays(aspect); 
+        // the projection matrix
+        // idk what this is tbh :(
+        let proj = glm::perspective_rh_zo(
+            width as f32 / height as f32,
+            game_state.cam.fov,
+            game_state.cam.near,
+            1000.0,
+        );
 
-    let mut wall_segs = Vec::with_capacity(game_state.walls.len());
-    for (wall_seg, color) in game_state.walls.iter() {
-        let rotated_wall_seg = cam::rotate_seg(*wall_seg, &game_state.cam);
-    
-        let wall_segment = cam::wall_camera_intersect((frustum_left_ray, frustum_right_ray), rotated_wall_seg, &game_state.cam)
-            .into_iter()
-            .map(|v| (v, color))
-            .collect::<Vec<_>>();
-        wall_segs.push(wall_segment);
-    }
+        let conv_wall_point_set : Vec<glm::Vec3> = wall_point_set.iter()
+            .map(|v| glm::vec3(v.x, v.y, v.z))
+            .collect();
 
-    let mut parsed_walls: Vec<(Polygon, &Color)> = vec![];
-    for (wall_segment, color) in wall_segs.into_iter().flat_map(|v| v) {
-
-        // wall_seg: LineSegment
-
-        let wall_point_set = wall_floor_to_3d(&wall_segment.start, &wall_segment.end);
-        let mut wall: Vec<Vec2> = vec![];
-        for wall_point in wall_point_set {
-            match a3d_to_2d::project_point(wall_point, &game_state.cam, width/height){
-                Some(s) => wall.push(Vec2 {
-                    x: s.x,
-                    y: s.y, 
-                }*500.0),
-                None => continue,
-            }
-        };
-        parsed_walls.push((Polygon::new(wall), color));
-    }
-
-    let scale: Vec2 = ((width/2.0), (height/2.0)).into();
-    for (wall, color) in parsed_walls.iter(){
-        for point in wall.points.iter(){
-            println!("Points: {},{}", point.x, point.y);
+        let screen_coord = a3d_to_2d::clip_and_project_polygon(&conv_wall_point_set, &game_state.cam, proj, width, height);
+        if screen_coord.len() < 3 {
+            continue;
         }
-        (wall.clone()+scale).draw_filled(ctx, canvas, **color);
+        // draw poly
+        let poly = Polygon::new(screen_coord);
+        (poly.clone()).draw_filled(ctx, canvas, *color);
     }
-    //line_seg.draw(ctx, canvas, Color::BLACK);
-
 
     Ok(())
 }
