@@ -1,4 +1,5 @@
 use super::vecs::{Vec2, Vec3};
+use crate::game::array::ror_vec3_yaw;
 use super::lines::{self, LineSegment};
 pub struct Camera {
     pub pos: Vec3,
@@ -8,7 +9,7 @@ pub struct Camera {
 
 impl Camera {
     pub fn frustum_cam_rays(&self, aspect: f32) -> (LineSegment, LineSegment) {
-        let near = 0.1;
+        let near = 1.0;
 
         let forward = Vec3::new(0.0, 0.0, 1.0);
         let right = Vec3::new(1.0, 0.0, 0.0);
@@ -64,34 +65,46 @@ impl Camera {
 
 }
 
-pub fn wall_camera_intersect(fulcs: (LineSegment, LineSegment), wall_seg: LineSegment) -> LineSegment {
+pub fn wall_camera_intersect(fulcs: (LineSegment, LineSegment), wall_seg: LineSegment, _cam: &Camera) -> Vec<LineSegment> {
     let left = wall_camera_intersect_one(fulcs.0, wall_seg);
-    if left != wall_seg {
-        return left;
+    if let Some(s) = left {
+        return s.into();
     }
     let right = wall_camera_intersect_one(fulcs.1, wall_seg);
-    if right != wall_seg {
-        return right;
+    if let Some(s) = right {
+        return s.into();
     }
-    wall_seg
+    vec![wall_seg]
 }
 
-fn wall_camera_intersect_one(fulc: LineSegment, mut wall_seg: LineSegment) -> LineSegment {
-        let intersection: Vec2 = match lines::intersection_point_segment(&fulc, &wall_seg) {
-            Some(mut a) => {
-                a.y += 0.1;
-                a
-            },
-            _ => {
-                return wall_seg
-            }
-        };
-        println!("start: {} end: {} inter: {}", wall_seg.start.y, wall_seg.end.y, intersection.y);
-        if wall_seg.start.y < intersection.y{
-            wall_seg.start = intersection;
-        } else if wall_seg.end.y < intersection.y {
-            wall_seg.end = intersection;
-        } 
-
-        wall_seg
+fn wall_camera_intersect_one(fulc: LineSegment, wall_seg: LineSegment) -> Option<[LineSegment; 2]> {
+    match lines::intersection_point_segment(&fulc, &wall_seg) {
+        Some(a) => Some([LineSegment { start: wall_seg.start, end: a }, LineSegment { start: a, end: wall_seg.end }]),
+        _ => None,
+    }
 }
+
+pub fn rotate_seg(seg: LineSegment, cam: &Camera) -> LineSegment {
+    // world → camera-relative
+    let start_rel = Vec3 {
+        x: seg.start.x,
+        y: 0.0,
+        z: seg.start.y,
+    } - cam.pos;
+
+    let end_rel = Vec3 {
+        x: seg.end.x,
+        y: 0.0,
+        z: seg.end.y,
+    } - cam.pos;
+
+    // rotate into camera view space
+    let start_view = ror_vec3_yaw(start_rel, cam.yaw);
+    let end_view   = ror_vec3_yaw(end_rel, cam.yaw);
+
+    // back to 2D ground
+    let final_start = Vec2 { x: start_view.x, y: start_view.z };
+    let final_end   = Vec2 { x: end_view.x,   y: end_view.z };
+
+    (final_start, final_end).into()
+}   

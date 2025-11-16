@@ -14,7 +14,6 @@ use cam::Camera;
 
 use polygons::Polygon;
 
-use crate::game::array::ror_vec3_yaw;
 
 
 
@@ -25,8 +24,8 @@ pub struct GameState {
 
 fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> Vec<Vec3> {
     let mut three_d_point = vec![];
-    let base = -0.5;
-    let offset_up = 1.0;
+    let base = -3.0;
+    let offset_up = 10.0;
     three_d_point.push(Vec3 {
         x: wall_left.x,
         y: base,
@@ -55,13 +54,13 @@ impl GameState {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
         let floor_plan: Vec<(Vec2, Vec2)> = vec![
-            (Vec2::new(2.0, 1.0), Vec2::new(2.0, 2.0)),
-            (Vec2::new(2.0, 2.0), Vec2::new(3.0, 3.2)),
-            (Vec2::new(3.0, 3.2), Vec2::new(3.0, 1.0))
+            (Vec2::new(2.0, 1.0), Vec2::new(2.0, 20.0)),
+            (Vec2::new(2.0, 20.0), Vec2::new(30.0, 30.2)),
+            (Vec2::new(30.0, 30.2), Vec2::new(30.0, 1.0))
         ];
 
         let camera3d: vecs::Vec3 = Default::default();
-        let fov: f32 = 120.0_f32.to_radians();
+        let fov: f32 = 75.0_f32.to_radians();
         let cooler_floor_plan = floor_plan.into_iter()
             .map(|v| (v.into(), random_color()))
             .collect::<Vec<_>>();
@@ -92,6 +91,12 @@ impl event::EventHandler for GameState {
         if ctx.keyboard.is_key_pressed(KeyCode::Right) {
             self.cam.pos.x += 0.01;
         }
+        if (ctx.keyboard.is_key_pressed(KeyCode::J)) {
+            self.cam.yaw -= 0.01;
+        }
+        if (ctx.keyboard.is_key_pressed(KeyCode::K)) {
+            self.cam.yaw += 0.01;
+        }
         Ok(())
     }
 
@@ -114,20 +119,26 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
 
     let (frustum_left_ray, frustum_right_ray) = game_state.cam.frustum_cam_rays(aspect); 
 
-    let mut parsed_walls = vec![];
+    let mut wall_segs = Vec::with_capacity(game_state.walls.len());
     for (wall_seg, color) in game_state.walls.iter() {
+        let rotated_wall_seg = cam::rotate_seg(*wall_seg, &game_state.cam);
+    
+        let wall_segment = cam::wall_camera_intersect((frustum_left_ray, frustum_right_ray), rotated_wall_seg, &game_state.cam)
+            .into_iter()
+            .map(|v| (v, color))
+            .collect::<Vec<_>>();
+        wall_segs.push(wall_segment);
+    }
+
+    let mut parsed_walls: Vec<(Polygon, &Color)> = vec![];
+    for (wall_segment, color) in wall_segs.into_iter().flat_map(|v| v) {
 
         // wall_seg: LineSegment
-        let rotated_wall_seg = rotate_seg(*wall_seg, &game_state.cam);
-    
-
-        let wall_segment = cam::wall_camera_intersect((frustum_left_ray, frustum_right_ray), rotated_wall_seg);
-        println!("wall seg {:?}", wall_segment);
 
         let wall_point_set = wall_floor_to_3d(&wall_segment.start, &wall_segment.end);
         let mut wall: Vec<Vec2> = vec![];
         for wall_point in wall_point_set {
-            match a3d_to_2d::project_point(wall_point, &game_state.cam, None){
+            match a3d_to_2d::project_point(wall_point, &game_state.cam, width/height){
                 Some(s) => wall.push(Vec2 {
                     x: s.x,
                     y: s.y, 
@@ -158,40 +169,3 @@ fn random_color() -> Color{
     Color::from_rgb(r, g, b)
 }
 
-
-fn rotate_seg(seg: LineSegment, cam: &Camera) -> LineSegment {
-    //Repect them to Cam
-    /*let seg_start_3d = Vec3 {
-        x: seg.start.x,
-        y: 0.0,
-        z: seg.start.y
-    };
-    let seg_end_3d = Vec3 {
-        x: seg.end.x,
-        y: 0.0,
-        z: seg.start.y
-    };
-    let start_relative: Vec3 = seg_start_3d - cam.pos;
-    let end_relative: Vec3 = seg_end_3d - cam.pos;
-
-    //Rotate
-    let start_rotated: Vec3 = ror_vec3_yaw(start_relative, cam.yaw);
-    let end_rotated: Vec3 = ror_vec3_yaw(end_relative, cam.yaw);
-
-    let start_3d = start_rotated + cam.pos;
-    let end_3d = end_rotated + cam.pos;
-
-    let final_start = Vec2 {
-        x: start_3d.x,
-        y: start_3d.z,
-    };
-
-    let final_end: Vec2 = Vec2 {
-        x: end_3d.x,
-        y: end_3d.z
-    };
-
-    (final_start, final_end).into()
-    */
-    seg
-}   
