@@ -15,15 +15,20 @@ use vecs::{Vec2, Vec3};
 use rand::Rng;
 use cam::Camera;
 use polygons::Polygon;
+use once_cell::sync::Lazy;
 
 use nalgebra_glm as glm;
+
+static RAND_32: Lazy<u32> = Lazy::new(|| {
+    rand::rng().random()
+});
 
 use crate::game::a3d_to_2d::*;
 use crate::game::lines::LineSegment3;
 
 pub struct GameState {
     cam: Camera,
-    walls:Vec<(LineSegment, Color)>
+    walls:Vec<LineSegment>
 }
 
 fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> (LineSegment3, LineSegment3) {
@@ -64,7 +69,7 @@ impl GameState {
         let camera3d: vecs::Vec3 = Default::default();
         let fov: f32 = 80.0_f32.to_radians();
         let cooler_floor_plan = floor_plan.into_iter()
-            .map(|v| (v.into(), random_color()))
+            .map(|v| v.into())
             .collect::<Vec<_>>();
 
         GameState {
@@ -114,7 +119,8 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
 
     skybox::draw_skybox(game_state, ctx, canvas, width as f32, height as f32)?;
 
-    for (wall_segment, color) in game_state.walls.iter() {
+    for wall_segment in game_state.walls.iter() {
+        let color = random_color((wall_segment.start, wall_segment.end));
         //let rotated_wall_seg = cam::rotate_seg(*wall_segment, &game_state.cam);
         let wall_3d_segs = wall_floor_to_3d(&wall_segment.start, &wall_segment.end);
 
@@ -144,16 +150,19 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
         }
         // draw poly
         let poly = Polygon::new(screen_coord);
-        (poly.clone()).draw_filled(ctx, canvas, *color);
+        (poly.clone()).draw_filled(ctx, canvas, color);
     }
 
     Ok(())
 }
-fn random_color() -> Color{
-    let mut rng = rand::rng();
-    let r: u8 = rng.random();
-    let g: u8 = rng.random();
-    let b: u8 = rng.random();
+fn random_color(v: (Vec2, Vec2)) -> Color{
+    let mut rng = *RAND_32 + (v.0.x as u32)*100 + (v.0.y as u32)*1000 +
+        (v.1.x as u32)*5000 + (v.1.y as u32)*10000;
+    let r = ((rng & 0xFF0000) >> 16) as u8;
+    rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
+    let g = ((rng & 0x00FF00) >> 8) as u8;
+    rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
+    let b = (rng & 0x0000FF) as u8;
     Color::from_rgb(r, g, b)
 }
 
