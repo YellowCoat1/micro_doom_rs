@@ -222,8 +222,23 @@ fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
 
 // Assuming that a interpreted as an inf line intersects with the line segment b,
 // returns the 2 split segments of b from both sides of the intersection.
+//
+// Panics if the lines do not intersect (that means they're parallel. use do_lines_intersect or
+// point_side_of_line to check)
 pub fn split_line(a: &LineSegment, b: &LineSegment) -> (LineSegment, LineSegment) {
-    todo!()
+    let p = intersection_point(a, b).expect("Lines do not intersect");
+
+    let seg1 = LineSegment {
+        start: b.start,
+        end: p,
+    };
+
+    let seg2 = LineSegment {
+        start: p,
+        end: b.end,
+    };
+
+    (seg1, seg2)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
