@@ -6,6 +6,7 @@ pub struct Polygon {
     pub points: Vec<Vec2>,
 }
 
+
 impl Polygon {
     pub fn new(points: Vec<Vec2>) -> Self {
         Self { points }
@@ -18,5 +19,17 @@ impl Polygon {
             color,
         ).unwrap();
         canvas.draw(&poly, ggez::graphics::DrawParam::default())
+    }
+}
+
+impl From<&[Vec2]> for Polygon {
+    fn from(points: &[Vec2]) -> Self {
+        Self::new(points.to_vec())
+    }
+}
+
+impl From<Vec<Vec2>> for Polygon {
+    fn from(points: Vec<Vec2>) -> Self {
+        Self::new(points)
     }
 }
