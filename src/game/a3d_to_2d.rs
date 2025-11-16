@@ -1,11 +1,15 @@
+//! RANDOM FUCKY STUFF THATS THE CORE ABOUT DRAWING
+//! HOW DOES IT WORK??? FUCK IF I KNOW
+//! CLIP SPACE OR SMTH IG
+
 use super::vecs::{Vec3, Vec2};
 use nalgebra_glm as glm;
+
 
 /// Represents a vertex in clip space
 #[derive(Clone, Debug)]
 struct Vertex {
     pos: glm::Vec4, // clip-space position
-    // Add UV/color/etc. here if needed
 }
 
 /// Clip polygon against a single frustum plane
@@ -78,6 +82,10 @@ fn clip_polygon(vertices: &[Vertex]) -> Vec<Vertex> {
 }
 
 /// Clip and project polygon to screen space
+/// 
+/// Essentially takes a 3d polygon n gives u the 2d coords for drawing
+///
+/// the CORE of the core
 pub fn clip_and_project_polygon(
     world_vertices: &[glm::Vec3],
     cam: &super::cam::Camera,
@@ -117,9 +125,11 @@ pub fn clip_and_project_polygon(
 
 
 /// Convert NDC to screen space
+/// i actually understand this one! :D
 pub fn ndc_to_screen(ndc_x: f32, ndc_y: f32, width: f32, height: f32) -> Vec2 {
     Vec2 {
         x: (-ndc_x + 1.0) * 0.5 * width,
         y: (ndc_y + 1.0) * 0.5 * height,
     }
 }
+

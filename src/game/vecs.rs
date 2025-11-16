@@ -15,6 +15,17 @@ impl Vec2 {
     pub fn length(&self) -> f32 {
         (self.x * self.x + self.y * self.y).sqrt()
     }
+    pub fn normalize(&self) -> Self {
+        let len = self.length();
+        if len == 0.0 {
+            Vec2::default()
+        } else {
+            Vec2 {
+                x: self.x / len,
+                y: self.y / len,
+            }
+        }
+    }
 }
 
 impl Default for Vec2 {
@@ -42,6 +53,19 @@ impl Vec3 {
     }
     pub fn length(&self) -> f32 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+    }
+
+    pub fn normalize(&self) -> Self {
+        let len = self.length();
+        if len == 0.0 {
+            Vec3::default()
+        } else {
+            Vec3 {
+                x: self.x / len,
+                y: self.y / len,
+                z: self.z / len,
+            }
+        }
     }
 }
 

@@ -59,16 +59,9 @@ impl GameState {
     pub fn new(ctx: &mut Context) -> Self {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
-        let floor_plan: Vec<(Vec2, Vec2)> = vec![
-            (Vec2::new(1.0, 10.0), Vec2::new(2.0, 6.0)),
-            (Vec2::new(2.0, 6.0), Vec2::new(5.0, 5.0)),
-            (Vec2::new(5.0, 5.0), Vec2::new(7.0, 7.0)),
-            (Vec2::new(7.0, 7.0), Vec2::new(6.0, 10.0)),
-            (Vec2::new(6.0, 10.0), Vec2::new(1.0, 10.0)),
-        ];
-
+        let floor_plan: Vec<(Vec2, Vec2)> = fs::load_floor_plan
         let camera3d: vecs::Vec3 = Default::default();
-        let fov: f32 = 120.0_f32.to_radians();
+        let fov: f32 = 80.0_f32.to_radians();
         let cooler_floor_plan = floor_plan.into_iter()
             .map(|v| (v.into(), random_color()))
             .collect::<Vec<_>>();
@@ -88,22 +81,17 @@ impl GameState {
 
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+        let forward = self.cam.forward_vector();
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
-            self.cam.pos.z += 0.01;
+            self.cam.pos = self.cam.pos + forward * 0.01;
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Down) {
-            self.cam.pos.z -= 0.01;
+            self.cam.pos = self.cam.pos - forward * 0.01;
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Left) {
-            self.cam.pos.x -= 0.01;
-        }
-        if ctx.keyboard.is_key_pressed(KeyCode::Right) {
-            self.cam.pos.x += 0.01;
-        }
-        if ctx.keyboard.is_key_pressed(KeyCode::J) {
             self.cam.yaw -= 0.01;
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::K) {
+        if ctx.keyboard.is_key_pressed(KeyCode::Right) {
             self.cam.yaw += 0.01;
         }
         Ok(())

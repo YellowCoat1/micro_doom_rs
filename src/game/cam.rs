@@ -1,3 +1,6 @@
+//! defines a camera for 3d rendering
+//!
+//! also kinda the player position :3
 use super::vecs::{Vec2, Vec3};
 use crate::game::{array::ror_vec3_yaw, lines::LineSegment3};
 use super::lines::{self, LineSegment};
@@ -54,6 +57,15 @@ impl Camera {
 
         Some((p1+self.pos, p2+self.pos))
     }
+
+    pub fn forward_vector(&self) -> Vec3 {
+        Vec3 {
+            x: self.yaw.sin(),
+            y: 0.0,
+            z: self.yaw.cos(),
+        }.normalize()
+    }
+
 }
 
 pub fn wall_camera_intersect(fulcs: (LineSegment, LineSegment), wall_seg: LineSegment, _cam: &Camera) -> Vec<LineSegment> {
