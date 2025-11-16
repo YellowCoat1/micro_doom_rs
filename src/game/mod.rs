@@ -31,8 +31,6 @@ use bsp::BSPNode;
 pub struct GameState {
     cam: Camera,
     bsp: BSPNode,
-    // backup
-    walls: Vec<LineSegment>,
 }
 
 fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> (LineSegment3, LineSegment3) {
@@ -69,8 +67,12 @@ impl GameState {
     pub fn new(ctx: &mut Context) -> Self {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
-        let floor_plan: Vec<(Vec2, Vec2)> = fs::segs_from_file("map01.txt");
-        let camera3d: vecs::Vec3 = Default::default();
+        let (floor_plan, cam_pos) = fs::segs_from_file();
+        let camera3d: vecs::Vec3 = Vec3 {
+            x: cam_pos.x,
+            y: 0.0,
+            z: cam_pos.y,
+        };
         let fov: f32 = 80.0_f32.to_radians();
         
         let floor_plan_segs = floor_plan.iter()
@@ -88,7 +90,6 @@ impl GameState {
                 near: 0.1,
             },
             bsp, 
-            walls: floor_plan.iter().map(|(s, e)| LineSegment { start: *s, end: *e }).collect(),
         }
     }
 }
@@ -132,11 +133,7 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
         y: game_state.cam.pos.z,
     };
 
-    let mut out_vec = game_state.bsp.order(cam_pos_2d);
-
-    if out_vec.is_empty() {
-        out_vec = game_state.walls.clone();
-    }
+    let out_vec = game_state.bsp.order(cam_pos_2d);
 
     for wall_segment in out_vec.iter() {
         let color = random_color((wall_segment.start, wall_segment.end));
