@@ -145,7 +145,8 @@ fn intersection_point_segment(a: &LineSegment, b: &LineSegment) -> Option<Vec2> 
 
     // Check x bounds for segment b
     if p.x < b.start.x.min(b.end.x) || p.x > b.start.x.max(b.end.x) {
-        return None;
+       return None;
+    }
 
     Some(p)
 }
