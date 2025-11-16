@@ -1,5 +1,5 @@
 use super::vecs::{Vec2, Vec3};
-use super::lines::LineSegment;
+use super::lines::{self, LineSegment};
 pub struct Camera {
     pub pos: Vec3,
     pub fov: f32,
@@ -44,3 +44,37 @@ impl Camera {
         )
     }
 }
+
+pub fn wall_camera_intersect(fulcs: (LineSegment, LineSegment), wall_seg: LineSegment) -> LineSegment {
+    let left = wall_camera_intersect_one(fulcs.0, wall_seg);
+    if left != wall_seg {
+        return left;
+    }
+    let right = wall_camera_intersect_one(fulcs.1, wall_seg);
+    if right != wall_seg {
+        return right;
+    }
+    wall_seg
+}
+
+fn wall_camera_intersect_one(fulc: LineSegment, mut wall_seg: LineSegment) -> LineSegment {
+        let intersection: Vec2 = match lines::intersection_point_segment(&fulc, &wall_seg) {
+            Some(mut a) => {
+                a.y += 0.1;
+                a
+            },
+            _ => {
+                return wall_seg
+            }
+        };
+        println!("start: {} end: {} inter: {}", wall_seg.start.y, wall_seg.end.y, intersection.y);
+        if wall_seg.start.y < intersection.y{
+            wall_seg.start = intersection;
+        } else if wall_seg.end.y < intersection.y {
+            wall_seg.end = intersection;
+        } 
+
+        wall_seg
+}
+
+
