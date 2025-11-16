@@ -1,4 +1,5 @@
 use ggez::{Context, graphics::{Canvas, Color, Mesh}, mint::Point2};
+use std::ops::{Add, Sub};
 
 use super::vecs::Vec2;
 
@@ -34,6 +35,28 @@ impl From<(f32, f32, f32, f32)> for LineSegment {
 impl From<LineSegment> for (f32, f32, f32, f32) {
     fn from(line: LineSegment) -> Self {
         (line.start.x, line.start.y, line.end.x, line.end.y)
+    }
+}
+
+impl Add for LineSegment {
+    type Output = LineSegment;
+
+    fn add(self, other: LineSegment) -> LineSegment {
+        LineSegment {
+            start: self.start + other.start,
+            end: self.end + other.end,
+        }
+    }
+}
+
+impl Sub for LineSegment {
+    type Output = LineSegment;
+
+    fn sub(self, other: LineSegment) -> LineSegment {
+        LineSegment {
+            start: self.start - other.start,
+            end: self.end - other.end,
+        }
     }
 }
 
