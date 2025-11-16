@@ -33,13 +33,11 @@ impl Camera {
     pub fn clip_to_near_plane(&self, start: Vec3, end: Vec3) -> Option<(Vec3, Vec3)> {
         let mut p1 = start - self.pos;
         let mut p2 = end - self.pos;
-        println!("Relative line segment: p1={:?}, p2={:?}", p1, p2);
         let near = self.near;
         let z1 = p1.z;
         let z2 = p2.z;
 
         if z1 < near && z2 < near {
-            println!("Both points are behind the near plane.");
             return None; // Both behind
         }
 

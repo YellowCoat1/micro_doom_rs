@@ -48,7 +48,6 @@ fn classify_segment(partition: LineSegment, segment: LineSegment) -> (Option<Lin
         end_side = start_side;
     }
 
-    println!("Classifying segment from {:?} to {:?}: start_side={:?}, end_side={:?}",
              segment.start, segment.end, start_side, end_side);
 
     match (start_side, end_side) {
@@ -64,7 +63,6 @@ fn classify_segment(partition: LineSegment, segment: LineSegment) -> (Option<Lin
                 // Guard against degenerate zero-length pieces produced by split_line
                 let left_opt = if is_degenerate(&left) { None } else { Some(left) };
                 let right_opt = if is_degenerate(&right) { None } else { Some(right) };
-                println!("Segment split into left: {:?}, right: {:?}", left_opt, right_opt);
                 (left_opt, right_opt)
             } else {
                 // split_line couldn't split for some reason — be conservative
