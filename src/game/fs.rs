@@ -1,17 +1,33 @@
 use super::vecs::Vec2;
 
+const DEFAULT_MAP: &str = "
+7.1 1.4
+05 00 10 00
+10 00 10 05
+10 05 15 10
+15 10 20 10
+20 10 20 15
+20 15 15 15
+15 15 05 05
+05 05 05 00
+";
+
 // returns camera position and line segments from a file
 pub fn segs_from_file() -> (Vec<(Vec2, Vec2)>, Vec2) {
     let mut args  = std::env::args().skip(1);
-    let s = match args.next() {
-        Some(arg) => arg,
-        None => "map01.txt".to_string(),
-    };
-    let mut line_segments: Vec<(Vec2, Vec2)> = vec![];
-    let contents = std::fs::read_to_string(s).expect("Failed to read file :(");
-    let lines = contents.lines();
 
-    let cam_line = lines.clone().next().expect("File is empty :(");
+    let contents = match args.next() {
+        Some(arg) => std::fs::read_to_string(arg).expect("Failed to read file :("),
+        None => DEFAULT_MAP.to_string(),
+    };
+
+    let mut line_segments: Vec<(Vec2, Vec2)> = vec![];
+    let mut lines = contents.lines()
+        .skip_while(|line| line.trim().is_empty());
+
+    let cam_line = lines
+        .next()
+        .expect("File is empty :(");
     let cam_coords: Vec<_> = cam_line
         .split_whitespace()
         .map(|s| s.parse().expect("Failed to parse camera coordinates :("))
@@ -25,7 +41,7 @@ pub fn segs_from_file() -> (Vec<(Vec2, Vec2)>, Vec2) {
         panic!("Camera coordinates (start of file) should have 2 values :(");
     };
 
-    for line in contents.lines() {
+    for line in lines {
         let coords: Vec<f32> = line
             .split_whitespace()
             .map(|s| s.parse().expect("Failed to parse coordinates :("))
