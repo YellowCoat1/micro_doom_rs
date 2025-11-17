@@ -1,23 +1,24 @@
+use crate::game::drawing::Drawer;
 use ggez::graphics::{self, Color};
 use ggez::{Context, GameResult};
-use once_cell::sync::Lazy;
 use nalgebra_glm as glm;
-use crate::game::drawing::Drawer;
+use once_cell::sync::Lazy;
 
-use super::vecs::{Vec2, Vec3};
-use super::a3d_to_2d;
-use super::skybox;
 use super::GameState;
+use super::a3d_to_2d;
 use super::lines::LineSegment3;
+use super::skybox;
+use super::vecs::{Vec2, Vec3};
 
 use rand::Rng;
 
-static RAND_32: Lazy<u32> = Lazy::new(|| {
-    rand::rng().random()
-});
+static RAND_32: Lazy<u32> = Lazy::new(|| rand::rng().random());
 
-
-pub fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult<()> {
+pub fn draw_screen(
+    game_state: &mut GameState,
+    ctx: &mut Context,
+    canvas: &mut graphics::Canvas,
+) -> GameResult<()> {
     // Drawing logic here
     let (width, height) = ctx.gfx.size();
 
@@ -53,11 +54,18 @@ pub fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut g
             1000.0,
         );
 
-        let conv_wall_point_set : Vec<glm::Vec3> = wall_point_set.iter()
+        let conv_wall_point_set: Vec<glm::Vec3> = wall_point_set
+            .iter()
             .map(|v| glm::vec3(v.x, v.y, v.z))
             .collect();
 
-        let screen_coord = a3d_to_2d::clip_and_project_polygon(&conv_wall_point_set, &game_state.cam, proj, width, height);
+        let screen_coord = a3d_to_2d::clip_and_project_polygon(
+            &conv_wall_point_set,
+            &game_state.cam,
+            proj,
+            width,
+            height,
+        );
         if screen_coord.len() < 3 {
             continue;
         }
@@ -68,9 +76,12 @@ pub fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut g
     Ok(())
 }
 
-fn random_color(v: (Vec2, Vec2)) -> Color{
-    let mut rng = *RAND_32 + (v.0.x as u32)*100 + (v.0.y as u32)*1000 +
-        (v.1.x as u32)*5000 + (v.1.y as u32)*10000;
+fn random_color(v: (Vec2, Vec2)) -> Color {
+    let mut rng = *RAND_32
+        + (v.0.x as u32) * 100
+        + (v.0.y as u32) * 1000
+        + (v.1.x as u32) * 5000
+        + (v.1.y as u32) * 10000;
     let r = ((rng & 0xFF0000) >> 16) as u8;
     rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
     let g = ((rng & 0x00FF00) >> 8) as u8;
@@ -79,7 +90,6 @@ fn random_color(v: (Vec2, Vec2)) -> Color{
     Color::from_rgb(r, g, b)
 }
 
-
 fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> (LineSegment3, LineSegment3) {
     let base = -0.75;
     let offset_up = 1.75;
@@ -87,27 +97,25 @@ fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> (LineSegment3, LineS
         start: Vec3 {
             x: wall_left.x,
             y: base,
-            z: wall_left.y
+            z: wall_left.y,
         },
         end: Vec3 {
             x: wall_right.x,
             y: base,
-            z: wall_right.y
-        }
+            z: wall_right.y,
+        },
     };
     let line_seg_top = LineSegment3 {
         start: Vec3 {
             x: wall_left.x,
-            y: base+offset_up,
-            z: wall_left.y
+            y: base + offset_up,
+            z: wall_left.y,
         },
         end: Vec3 {
             x: wall_right.x,
-            y: base+offset_up,
-            z: wall_right.y
-        }
+            y: base + offset_up,
+            z: wall_right.y,
+        },
     };
     (line_seg, line_seg_top)
 }
-
-

@@ -2,9 +2,8 @@
 //! HOW DOES IT WORK??? FUCK IF I KNOW
 //! CLIP SPACE OR SMTH IG
 
-use nalgebra_glm as glm;
 use super::vecs::Vec2;
-
+use nalgebra_glm as glm;
 
 /// Represents a vertex in clip space
 #[derive(Clone, Debug)]
@@ -13,7 +12,12 @@ struct Vertex {
 }
 
 /// Clip polygon against a single frustum plane
-fn clip_against_plane(vertices: &[Vertex], component: usize, compare: f32, less_than: bool) -> Vec<Vertex> {
+fn clip_against_plane(
+    vertices: &[Vertex],
+    component: usize,
+    compare: f32,
+    less_than: bool,
+) -> Vec<Vertex> {
     let mut output = Vec::new();
 
     for i in 0..vertices.len() {
@@ -82,7 +86,7 @@ fn clip_polygon(vertices: &[Vertex]) -> Vec<Vertex> {
 }
 
 /// Clip and project polygon to screen space
-/// 
+///
 /// Essentially takes a 3d polygon n gives u the 2d coords for drawing
 ///
 /// the CORE of the core
@@ -98,11 +102,7 @@ pub fn clip_and_project_polygon(
     let mut clip_vertices: Vec<Vertex> = world_vertices
         .iter()
         .map(|p| {
-            let forward = glm::vec3(
-                cam.yaw.sin(),
-                0.0,
-                cam.yaw.cos(),
-            );
+            let forward = glm::vec3(cam.yaw.sin(), 0.0, cam.yaw.cos());
             let view = glm::look_at(&cam_pos, &(cam_pos + forward), &(glm::vec3(0.0, 1.0, 0.0)));
             let clip = proj * view * glm::vec4(p.x, p.y, p.z, 1.0);
             Vertex { pos: clip }
@@ -123,7 +123,6 @@ pub fn clip_and_project_polygon(
         .collect()
 }
 
-
 /// Convert NDC to screen space
 /// i actually understand this one! :D
 pub fn ndc_to_screen(ndc_x: f32, ndc_y: f32, width: f32, height: f32) -> Vec2 {
@@ -132,4 +131,3 @@ pub fn ndc_to_screen(ndc_x: f32, ndc_y: f32, width: f32, height: f32) -> Vec2 {
         y: (ndc_y + 1.0) * 0.5 * height,
     }
 }
-

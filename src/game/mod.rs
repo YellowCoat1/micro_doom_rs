@@ -1,22 +1,21 @@
-use ggez::{Context, GameResult, event, graphics, graphics::Color};
 use ggez::input::keyboard::KeyCode;
-mod vecs;
+use ggez::{Context, GameResult, event, graphics, graphics::Color};
 mod a3d_to_2d;
-mod lines;
-mod drawing;
-mod cam;
-mod skybox;
-mod fs;
 mod bsp;
+mod cam;
 mod colls;
 mod draw_screen;
-use lines::LineSegment;
-use vecs::Vec3;
+mod drawing;
+mod fs;
+mod lines;
+mod skybox;
+mod vecs;
 use cam::Camera;
 use colls::attempt_move;
+use lines::LineSegment;
+use vecs::Vec3;
 
 use bsp::BSPNode;
-
 
 pub struct GameState {
     cam: Camera,
@@ -33,8 +32,9 @@ impl GameState {
             z: cam_pos.y,
         };
         let fov: f32 = 80.0_f32.to_radians();
-        
-        let floor_plan_segs = floor_plan.iter()
+
+        let floor_plan_segs = floor_plan
+            .iter()
             .map(|(s, e)| LineSegment { start: *s, end: *e })
             .collect::<Vec<LineSegment>>();
 
@@ -48,7 +48,7 @@ impl GameState {
                 yaw: 0.0,
                 near: 0.1,
             },
-            bsp, 
+            bsp,
         }
     }
 }
@@ -80,4 +80,3 @@ impl event::EventHandler for GameState {
         canvas.finish(ctx)
     }
 }
-

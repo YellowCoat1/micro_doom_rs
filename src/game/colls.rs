@@ -24,11 +24,11 @@ pub fn attempt_move(game_state: &mut GameState, ctx: &mut Context) {
     };
 
     // for each wall segment, check if it intersects
-    let intersects = game_state.bsp.order(cam_pos.into())
+    let intersects = game_state
+        .bsp
+        .order(cam_pos.into())
         .into_iter()
-        .find(|wall_segment| {
-            do_lines_intersect(&segment, wall_segment)
-        });
+        .find(|wall_segment| do_lines_intersect(&segment, wall_segment));
 
     if intersects.is_some() {
         return;
@@ -36,5 +36,3 @@ pub fn attempt_move(game_state: &mut GameState, ctx: &mut Context) {
 
     game_state.cam.pos = new_pos;
 }
-
-

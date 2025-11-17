@@ -1,6 +1,6 @@
-use std::ops::{Add, Sub, Mul, Div};
-use nalgebra_glm::{Vec2 as GlmVec2, Vec3 as GlmVec3};
 use ggez::mint::Point2;
+use nalgebra_glm::{Vec2 as GlmVec2, Vec3 as GlmVec3};
+use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vec2 {
@@ -46,13 +46,21 @@ pub struct Vec3 {
 
 impl Default for Vec3 {
     fn default() -> Self {
-        Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+        Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
     }
 }
 
 impl From<Vec2> for Vec3 {
     fn from(v: Vec2) -> Self {
-        Vec3 { x: v.x, y: 0.0, z: v.y }
+        Vec3 {
+            x: v.x,
+            y: 0.0,
+            z: v.y,
+        }
     }
 }
 
@@ -61,8 +69,6 @@ impl From<Vec3> for Vec2 {
         Vec2 { x: v.x, y: v.z }
     }
 }
-
-
 
 impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
@@ -93,7 +99,11 @@ impl From<GlmVec2> for Vec2 {
 }
 impl From<GlmVec3> for Vec3 {
     fn from(v: GlmVec3) -> Self {
-        Vec3 { x: v.x, y: v.y, z: v.z }
+        Vec3 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+        }
     }
 }
 impl From<Vec2> for GlmVec2 {
@@ -134,7 +144,10 @@ impl From<Vec2> for (f32, f32) {
 
 impl From<[f32; 2]> for Vec2 {
     fn from(arr: [f32; 2]) -> Self {
-        Vec2 { x: arr[0], y: arr[1] }
+        Vec2 {
+            x: arr[0],
+            y: arr[1],
+        }
     }
 }
 impl From<Vec2> for [f32; 2] {
@@ -145,7 +158,11 @@ impl From<Vec2> for [f32; 2] {
 
 impl From<(f32, f32, f32)> for Vec3 {
     fn from(t: (f32, f32, f32)) -> Self {
-        Vec3 { x: t.0, y: t.1, z: t.2 }
+        Vec3 {
+            x: t.0,
+            y: t.1,
+            z: t.2,
+        }
     }
 }
 
@@ -177,7 +194,6 @@ impl Add<f32> for Vec2 {
     }
 }
 
-
 impl Sub for Vec2 {
     type Output = Vec2;
 
@@ -188,7 +204,6 @@ impl Sub for Vec2 {
         }
     }
 }
-
 
 impl Sub<f32> for Vec2 {
     type Output = Vec2;
@@ -285,4 +300,3 @@ impl Div<f32> for Vec3 {
         }
     }
 }
-

@@ -4,13 +4,15 @@
 //! This is so the entire thing can be picked up and dropped onto any rendering backend that can
 //! draw to a window.
 
-use ggez::{Context, graphics::{Canvas, Color}};
 use super::vecs::Vec2;
+use ggez::{
+    Context,
+    graphics::{Canvas, Color},
+};
 
 pub trait Drawer {
     fn draw_polygon(&mut self, points: &[Vec2], color: (u8, u8, u8, u8));
 }
-
 
 pub struct PolyDrawerGGEZ<'a> {
     ctx: &'a mut Context,
@@ -29,9 +31,14 @@ impl<'a> Drawer for PolyDrawerGGEZ<'a> {
         let poly = ggez::graphics::Mesh::new_polygon(
             &self.ctx.gfx,
             ggez::graphics::DrawMode::fill(),
-            &points.iter().map(|p| ggez::mint::Point2 { x: p.x, y: p.y }).collect::<Vec<_>>(),
+            &points
+                .iter()
+                .map(|p| ggez::mint::Point2 { x: p.x, y: p.y })
+                .collect::<Vec<_>>(),
             color,
-        ).unwrap();
-        self.canvas.draw(&poly, ggez::graphics::DrawParam::default());
+        )
+        .unwrap();
+        self.canvas
+            .draw(&poly, ggez::graphics::DrawParam::default());
     }
 }

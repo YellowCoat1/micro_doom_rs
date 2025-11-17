@@ -1,6 +1,10 @@
-use ggez::{Context, graphics::{Canvas, Color, Mesh}, mint::Point2};
-use std::ops::{Add, Sub, Mul};
 use super::vecs::{Vec2, Vec3};
+use ggez::{
+    Context,
+    graphics::{Canvas, Color, Mesh},
+    mint::Point2,
+};
+use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LineSegment {
@@ -27,7 +31,6 @@ impl LineSegment3 {
         (self.start + self.end) * 0.5
     }
 }
-
 
 impl From<LineSegment3> for (Vec3, Vec3) {
     fn from(line: LineSegment3) -> Self {
@@ -118,7 +121,6 @@ impl Mul<f32> for LineSegment {
     }
 }
 
-
 impl LineSegment {
     pub fn draw(&self, ctx: &mut Context, canvas: &mut Canvas, color: Color) {
         let point1 = Point2 {
@@ -129,16 +131,10 @@ impl LineSegment {
             x: self.end.x,
             y: self.end.y,
         };
-        let line = Mesh::new_line(
-            ctx,
-            &[point1, point2],
-            1.5,
-            color
-        ).unwrap();
+        let line = Mesh::new_line(ctx, &[point1, point2], 1.5, color).unwrap();
         canvas.draw(&line, ggez::graphics::DrawParam::default())
     }
 }
-
 
 impl LineSegment {
     pub fn new(start: Vec2, end: Vec2) -> Self {
@@ -154,37 +150,45 @@ impl LineSegment {
     }
 }
 
-
 /// Finds the intersection point of two lines. Note that this is lines, NOT line segments, so the
 /// point may lie outside the segments. If the lines are parallel, returns None.
 fn intersection_point(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
-    let denom = (a.start.x - a.end.x) * (b.start.y - b.end.y) - (a.start.y - a.end.y) * (b.start.x - b.end.x);
+    let denom = (a.start.x - a.end.x) * (b.start.y - b.end.y)
+        - (a.start.y - a.end.y) * (b.start.x - b.end.x);
     if denom == 0.0 {
-        return None
+        return None;
     }
-    let top = (a.start.x - b.start.x)*(b.start.y - b.end.y) - (a.start.y - b.start.y)*(b.start.x - b.end.x);
+    let top = (a.start.x - b.start.x) * (b.start.y - b.end.y)
+        - (a.start.y - b.start.y) * (b.start.x - b.end.x);
 
-    let calced = top/denom;
+    let calced = top / denom;
 
-    Some(a.start+(a.end-a.start) * calced)
+    Some(a.start + (a.end - a.start) * calced)
 }
 
 /// Checks if two line segments intersect. Returns true if they do, false otherwise.
 pub fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
     let p = if let Some(p) = intersection_point(a, b) {
         p
-    }
-    else {
+    } else {
         return false;
     };
 
     // Check x bounds for both segments
-    if p.x < a.start.x.min(a.end.x) || p.x > a.start.x.max(a.end.x) { return false; }
-    if p.x < b.start.x.min(b.end.x) || p.x > b.start.x.max(b.end.x) { return false; }
+    if p.x < a.start.x.min(a.end.x) || p.x > a.start.x.max(a.end.x) {
+        return false;
+    }
+    if p.x < b.start.x.min(b.end.x) || p.x > b.start.x.max(b.end.x) {
+        return false;
+    }
 
     // Check y bounds for both segments
-    if p.y < a.start.y.min(a.end.y) || p.y > a.start.y.max(a.end.y) { return false; }
-    if p.y < b.start.y.min(b.end.y) || p.y > b.start.y.max(b.end.y) { return false; }
+    if p.y < a.start.y.min(a.end.y) || p.y > a.start.y.max(a.end.y) {
+        return false;
+    }
+    if p.y < b.start.y.min(b.end.y) || p.y > b.start.y.max(b.end.y) {
+        return false;
+    }
 
     true
 }
@@ -216,7 +220,6 @@ pub fn split_line(a: &LineSegment, b: &LineSegment) -> Option<(LineSegment, Line
     let py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom;
 
     let intersection = Vec2 { x: px, y: py };
-
 
     let within_b = (intersection.x - x3) * (intersection.x - x4) <= 0.0
         && (intersection.y - y3) * (intersection.y - y4) <= 0.0;

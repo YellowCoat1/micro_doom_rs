@@ -1,5 +1,5 @@
-use super::vecs::Vec2;
 use super::lines::{LineSegment, Order, split_line};
+use super::vecs::Vec2;
 
 pub struct BSPNode {
     partition: LineSegment,
@@ -21,23 +21,28 @@ fn normalize_partition(mut partition: LineSegment) -> LineSegment {
     partition
 }
 
-
 fn bsp_point_side_of_line(line: &LineSegment, point: &Vec2) -> Order {
     // cross = (line ->) x (line->point)
     let cross = (line.end.x - line.start.x) * (point.y - line.start.y)
-              - (line.end.y - line.start.y) * (point.x - line.start.x);
-    if cross > EPSILON { Order::Left }
-    else if cross < -EPSILON { Order::Right }
-    else { Order::On }
+        - (line.end.y - line.start.y) * (point.x - line.start.x);
+    if cross > EPSILON {
+        Order::Left
+    } else if cross < -EPSILON {
+        Order::Right
+    } else {
+        Order::On
+    }
 }
-
 
 fn is_degenerate(seg: &LineSegment) -> bool {
     almost_equal(seg.start.x, seg.end.x) && almost_equal(seg.start.y, seg.end.y)
 }
-fn classify_segment(partition: LineSegment, segment: LineSegment) -> (Option<LineSegment>, Option<LineSegment>) {
+fn classify_segment(
+    partition: LineSegment,
+    segment: LineSegment,
+) -> (Option<LineSegment>, Option<LineSegment>) {
     let mut start_side = bsp_point_side_of_line(&partition, &segment.start);
-    let mut end_side   = bsp_point_side_of_line(&partition, &segment.end);
+    let mut end_side = bsp_point_side_of_line(&partition, &segment.end);
 
     // If one endpoint is On, treat it as being on the same side as the other endpoint.
     // This avoids unnecessary splits into zero-length pieces.
@@ -46,7 +51,6 @@ fn classify_segment(partition: LineSegment, segment: LineSegment) -> (Option<Lin
     } else if end_side == Order::On && start_side != Order::On {
         end_side = start_side;
     }
-
 
     match (start_side, end_side) {
         (Order::On, Order::On) => {
@@ -59,8 +63,16 @@ fn classify_segment(partition: LineSegment, segment: LineSegment) -> (Option<Lin
         _ => {
             if let Some((left, right)) = split_line(&partition, &segment) {
                 // Guard against degenerate zero-length pieces produced by split_line
-                let left_opt = if is_degenerate(&left) { None } else { Some(left) };
-                let right_opt = if is_degenerate(&right) { None } else { Some(right) };
+                let left_opt = if is_degenerate(&left) {
+                    None
+                } else {
+                    Some(left)
+                };
+                let right_opt = if is_degenerate(&right) {
+                    None
+                } else {
+                    Some(right)
+                };
                 (left_opt, right_opt)
             } else {
                 // split_line couldn't split for some reason — be conservative
@@ -81,7 +93,7 @@ impl BSPNode {
 
         for part in partitions.iter().skip(1) {
             let normalized_part = normalize_partition(*part);
-            
+
             let (front, back) = classify_segment(partition, normalized_part);
             if let Some(f) = front {
                 front_partitions.push(f);
@@ -92,8 +104,16 @@ impl BSPNode {
         }
         BSPNode {
             partition,
-            front: if front_partitions.is_empty() { None } else { Some(Box::new(BSPNode::new(front_partitions))) },
-            back: if back_partitions.is_empty() { None } else { Some(Box::new(BSPNode::new(back_partitions))) },
+            front: if front_partitions.is_empty() {
+                None
+            } else {
+                Some(Box::new(BSPNode::new(front_partitions)))
+            },
+            back: if back_partitions.is_empty() {
+                None
+            } else {
+                Some(Box::new(BSPNode::new(back_partitions)))
+            },
         }
     }
     pub fn order(&self, position: Vec2) -> Vec<LineSegment> {

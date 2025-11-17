@@ -16,8 +16,7 @@ impl Camera {
             x: self.yaw.sin(),
             y: 0.0,
             z: self.yaw.cos(),
-        }.normalize()
+        }
+        .normalize()
     }
-
 }
-
