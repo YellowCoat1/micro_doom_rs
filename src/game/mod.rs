@@ -1,31 +1,27 @@
-//Screen size is 800x600
+use ggez::{Context, GameResult, event, graphics, graphics::Color};
+use ggez::input::keyboard::KeyCode;
+use once_cell::sync::Lazy;
+use nalgebra_glm as glm;
 mod vecs;
 mod a3d_to_2d;
 mod lines;
-mod array;
 mod polygons;
 mod cam;
 mod skybox;
 mod fs;
 mod bsp;
 mod colls;
-use lines::LineSegment;
-use ggez::{Context, GameResult, event, graphics, graphics::Color};
-use ggez::input::keyboard::KeyCode;
+use lines::{LineSegment, LineSegment3};
 use vecs::{Vec2, Vec3};
 use rand::Rng;
 use cam::Camera;
 use polygons::Polygon;
-use once_cell::sync::Lazy;
-
-use nalgebra_glm as glm;
+use colls::attempt_move;
 
 static RAND_32: Lazy<u32> = Lazy::new(|| {
     rand::rng().random()
 });
 
-use crate::game::colls::attempt_move;
-use crate::game::lines::{LineSegment3, do_lines_intersect};
 
 use bsp::BSPNode;
 
@@ -66,7 +62,7 @@ fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> (LineSegment3, LineS
 }
 
 impl GameState {
-    pub fn new(ctx: &mut Context) -> Self {
+    pub fn new(_ctx: &mut Context) -> Self {
         //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
         //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
         let (floor_plan, cam_pos) = fs::segs_from_file();
@@ -128,7 +124,7 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
     // Drawing logic here
     let (width, height) = ctx.gfx.size();
 
-    skybox::draw_skybox(game_state, ctx, canvas, width as f32, height as f32)?;
+    skybox::draw_skybox(game_state, ctx, canvas, width, height)?;
 
     let cam_pos_2d = Vec2 {
         x: game_state.cam.pos.x,
@@ -152,7 +148,7 @@ fn draw_screen(game_state: &mut GameState, ctx: &mut Context, canvas: &mut graph
         // the projection matrix
         // idk what this is tbh :(
         let proj = glm::perspective_rh_zo(
-            width as f32 / height as f32,
+            width / height,
             game_state.cam.fov,
             game_state.cam.near,
             1000.0,

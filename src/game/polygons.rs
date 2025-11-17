@@ -1,6 +1,5 @@
 use ggez::{Context, graphics::{Canvas, Color}};
 use std::ops::Add;
-
 use super::vecs::Vec2;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -20,18 +19,6 @@ impl Polygon {
         let poly = ggez::graphics::Mesh::new_polygon(
             ctx,
             ggez::graphics::DrawMode::fill(),
-            &self.points.iter().map(|p| ggez::mint::Point2 { x: p.x, y: p.y }).collect::<Vec<_>>(),
-            color,
-        ).unwrap();
-        canvas.draw(&poly, ggez::graphics::DrawParam::default())
-    }
-    pub fn draw_unfilled(&self, ctx: &mut Context, canvas: &mut Canvas, color: Color) {
-        if self.points.len() < 3 {
-            return;
-        }
-        let poly = ggez::graphics::Mesh::new_polygon(
-            ctx,
-            ggez::graphics::DrawMode::stroke(1.5),
             &self.points.iter().map(|p| ggez::mint::Point2 { x: p.x, y: p.y }).collect::<Vec<_>>(),
             color,
         ).unwrap();

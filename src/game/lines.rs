@@ -1,9 +1,6 @@
 use ggez::{Context, graphics::{Canvas, Color, Mesh}, mint::Point2};
 use std::ops::{Add, Sub, Mul};
-
-use crate::game::vecs::Vec3;
-
-use super::vecs::Vec2;
+use super::vecs::{Vec2, Vec3};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LineSegment {
@@ -172,34 +169,6 @@ fn intersection_point(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
     Some(a.start+(a.end-a.start) * calced)
 }
 
-/// Treats the first line as a ray and the second as a segment. Returns the intersection
-/// point if it lies on the segment, None otherwise.
-pub fn intersection_point_segment(a: &LineSegment, b: &LineSegment) -> Option<Vec2> {
-    let p = intersection_point(a, b)?;
-
-    // Check x bounds for segment b
-    if p.x < b.start.x.min(b.end.x) || p.x > b.start.x.max(b.end.x) {
-       return None;
-    }
-
-    if a.start.x > a.end.x {
-        if p.x > a.start.x {
-            return None
-        }
-    } else if a.start.x < a.end.x {
-        if p.x < a.start.x {
-            return None
-        }
-    } else {
-        if p.x != a.start.x {
-            return None
-        }
-    }
-
-
-    Some(p)
-}
-
 /// Checks if two line segments intersect. Returns true if they do, false otherwise.
 pub fn do_lines_intersect(a: &LineSegment, b: &LineSegment) -> bool {
     let p = if let Some(p) = intersection_point(a, b) {
@@ -269,35 +238,12 @@ pub fn split_line(a: &LineSegment, b: &LineSegment) -> Option<(LineSegment, Line
     Some((seg1, seg2))
 }
 
-fn midpoint(seg: &LineSegment) -> Vec2 {
-    Vec2 {
-        x: (seg.start.x + seg.end.x) * 0.5,
-        y: (seg.start.y + seg.end.y) * 0.5,
-    }
-}
-
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Order {
     Left,
     Right,
     On,
 }
-
-// determines which side of the line the point is on.
-// Treats the line as infinite in both directions.
-pub fn point_side_of_line(line: &LineSegment, point: &Vec2) -> Order {
-    let val = (line.end.x - line.start.x) * (point.y - line.start.y) -
-              (line.end.y - line.start.y) * (point.x - line.start.x);
-    if val > 0.0 {
-        Order::Left
-    } else if val < 0.0 {
-        Order::Right
-    } else {
-        Order::On
-    }
-}
-
 
 #[cfg(test)]
 mod tests {

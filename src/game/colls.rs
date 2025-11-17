@@ -1,13 +1,13 @@
 use ggez::Context;
 
-use crate::game::GameState;
-
+use super::GameState;
 use super::lines::{LineSegment, do_lines_intersect};
-use super::vecs::Vec2;
 
-pub fn dot(a: Vec2, b: Vec2) -> f32 {
-    a.x * b.x + a.y * b.y
-}
+//use super::vecs::Vec2;
+
+//pub fn dot(a: Vec2, b: Vec2) -> f32 {
+//    a.x * b.x + a.y * b.y
+//}
 
 // assumed to be forward
 pub fn attempt_move(game_state: &mut GameState, ctx: &mut Context) {
@@ -30,9 +30,8 @@ pub fn attempt_move(game_state: &mut GameState, ctx: &mut Context) {
             do_lines_intersect(&segment, wall_segment)
         });
 
-    if let Some(_) = intersects {
+    if intersects.is_some() {
         return;
-
     }
 
     game_state.cam.pos = new_pos;

@@ -2,8 +2,8 @@
 //! HOW DOES IT WORK??? FUCK IF I KNOW
 //! CLIP SPACE OR SMTH IG
 
-use super::vecs::{Vec3, Vec2};
 use nalgebra_glm as glm;
+use super::vecs::Vec2;
 
 
 /// Represents a vertex in clip space

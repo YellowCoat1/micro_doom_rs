@@ -50,11 +50,18 @@ impl Default for Vec3 {
     }
 }
 
-impl Into<Vec2> for Vec3 {
-    fn into(self) -> Vec2 {
-        Vec2 { x: self.x, y: self.z }
+impl From<Vec2> for Vec3 {
+    fn from(v: Vec2) -> Self {
+        Vec3 { x: v.x, y: 0.0, z: v.y }
     }
 }
+
+impl From<Vec3> for Vec2 {
+    fn from(v: Vec3) -> Self {
+        Vec2 { x: v.x, y: v.z }
+    }
+}
+
 
 
 impl Vec3 {
