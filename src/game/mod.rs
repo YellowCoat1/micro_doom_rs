@@ -23,8 +23,7 @@ pub struct GameState {
 }
 impl GameState {
     pub fn new(_ctx: &mut Context) -> Self {
-        //let mut apoint3d: vecs::Vec3 = (10.0, 10.0, 10.0).into();
-        //let mut another_point3d: vecs::Vec3 = (10.0, 20.0, 10.0).into();
+
         let (floor_plan, cam_pos) = fs::segs_from_file();
         let camera3d: vecs::Vec3 = Vec3 {
             x: cam_pos.x,

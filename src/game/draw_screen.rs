@@ -54,7 +54,6 @@ pub fn draw_screen(
             wall_3d_segs.1.end,
             wall_3d_segs.1.start,
         ];
-
         
 
         let conv_wall_point_set: Vec<glm::Vec3> = wall_point_set

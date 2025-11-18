@@ -97,17 +97,21 @@ pub fn clip_and_project_polygon(
     screen_width: f32,
     screen_height: f32,
 ) -> Vec<Vec2> {
+    
     // Transform to clip space
-    let cam_pos = cam.pos.into();
     let mut clip_vertices: Vec<Vertex> = world_vertices
         .iter()
         .map(|p| {
-            let forward = glm::vec3(cam.yaw.sin(), 0.0, cam.yaw.cos());
-            let view = glm::look_at(&cam_pos, &(cam_pos + forward), &(glm::vec3(0.0, 1.0, 0.0)));
+            let view = cam.look_matrix();
             let clip = proj * view * glm::vec4(p.x, p.y, p.z, 1.0);
             Vertex { pos: clip }
         })
         .collect();
+    
+    // if all are behind the camera, return empty
+    if clip_vertices.iter().all(|v| v.pos.z < 0.0) {
+        return Vec::new();
+    }
 
     // Clip polygon
     clip_vertices = clip_polygon(&clip_vertices);
