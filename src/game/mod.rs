@@ -45,6 +45,7 @@ impl GameState {
                 pos: camera3d,
                 fov,
                 yaw: 0.0,
+                pitch: 0.0,
                 near: 0.1,
             },
             bsp,
@@ -54,19 +55,32 @@ impl GameState {
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let forward = self.cam.forward_vector();
+
+        let flattened = {
+            let mut flat = forward.clone();
+            flat.y = 0.0;
+            flat
+        };
+
         dbg!("Camera pos: {:?}", self.cam.pos);
         let delta = ctx.time.delta().as_secs_f32();
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
-            attempt_move(self, ctx);
+            attempt_move(self, ctx, &flattened);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Down) {
-            self.cam.pos = self.cam.pos - forward * 3.0 * delta;
+            self.cam.pos = self.cam.pos - flattened * 3.0 * delta;
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Left) {
             self.cam.yaw -= 0.01;
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Right) {
             self.cam.yaw += 0.01;
+        }
+        if ctx.keyboard.is_key_pressed(KeyCode::W) {
+            self.cam.pitch -= 0.01;
+        }
+        if ctx.keyboard.is_key_pressed(KeyCode::S) {
+            self.cam.pitch += 0.01;
         }
         Ok(())
     }

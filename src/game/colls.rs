@@ -1,22 +1,16 @@
 use ggez::Context;
 
+use crate::game::vecs::Vec3;
+
 use super::GameState;
 use super::lines::{LineSegment, do_lines_intersect};
 
-//use super::vecs::Vec2;
-
-//pub fn dot(a: Vec2, b: Vec2) -> f32 {
-//    a.x * b.x + a.y * b.y
-//}
-
-// assumed to be forward
-pub fn attempt_move(game_state: &mut GameState, ctx: &mut Context) {
+pub fn attempt_move(game_state: &mut GameState, ctx: &mut Context, move_vec: &Vec3) {
     let delta = ctx.time.delta().as_secs_f32();
     let cam_pos = game_state.cam.pos;
-    let forward = game_state.cam.forward_vector();
-    let new_pos = game_state.cam.pos + forward * 8.0 * delta;
+    let new_pos = game_state.cam.pos + *move_vec * 8.0 * delta;
 
-    let extended_ray = game_state.cam.pos + (forward * 50.0 * delta);
+    let extended_ray = game_state.cam.pos + (*move_vec * 50.0 * delta);
 
     let segment = LineSegment {
         start: cam_pos.into(),

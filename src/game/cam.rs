@@ -10,17 +10,30 @@ pub struct Camera {
     pub pos: Vec3,
     pub fov: f32,
     pub yaw: f32,
+    pub pitch: f32,
     pub near: f32,
 }
 
 impl Camera {
     pub fn forward_vector(&self) -> Vec3 {
+        let pitch_cos = self.pitch.cos();
+        let pitch_sin = self.pitch.sin();
+        let yaw_cos = self.yaw.cos();
+        let yaw_sin = self.yaw.sin();
         Vec3 {
-            x: self.yaw.sin(),
-            y: 0.0,
-            z: self.yaw.cos(),
+            x: yaw_sin * pitch_cos,
+            y: pitch_sin,
+            z: yaw_cos * pitch_cos,
         }
-        .normalize()
+    }
+    pub fn forward_vector_zero_pitch(&self) -> Vec3 {
+        let yaw_cos = self.yaw.cos();
+        let yaw_sin = self.yaw.sin();
+        Vec3 {
+            x: yaw_sin,
+            y: 0.0,
+            z: yaw_cos,
+        }
     }
     pub fn look_matrix(&self) -> GMat4 {
         let forward: GVec3 = self.forward_vector().into();

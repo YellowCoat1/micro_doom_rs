@@ -85,6 +85,19 @@ fn clip_polygon(vertices: &[Vertex]) -> Vec<Vertex> {
     clipped
 }
 
+/// Project a point without clipping
+pub fn project_point(point: glm::Vec3, cam: &super::cam::Camera, proj: glm::Mat4, screen_width: f32, screen_height: f32) -> Option<Vec2> {
+    let view = cam.look_matrix();
+    let clip = proj * view * glm::vec4(point.x, point.y, point.z, 1.0);
+    if clip.z < 0.0 {
+        return None
+    }
+
+    let ndc_x = clip.x / clip.w;
+    let ndc_y = clip.y / clip.w;
+    Some(ndc_to_screen(ndc_x, ndc_y, screen_width, screen_height))
+}
+
 /// Clip and project polygon to screen space
 ///
 /// Essentially takes a 3d polygon n gives u the 2d coords for drawing
