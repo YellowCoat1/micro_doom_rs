@@ -12,6 +12,8 @@ use ggez::{
 
 pub trait Drawer {
     fn draw_polygon(&mut self, points: &[Vec2], color: (u8, u8, u8, u8));
+    fn screen_width(&self) -> f32;
+    fn screen_height(&self) -> f32;
 }
 
 pub struct PolyDrawerGGEZ<'a> {
@@ -40,5 +42,11 @@ impl<'a> Drawer for PolyDrawerGGEZ<'a> {
         .unwrap();
         self.canvas
             .draw(&poly, ggez::graphics::DrawParam::default());
+    }
+    fn screen_width(&self) -> f32 {
+        self.ctx.gfx.size().0
+    }
+    fn screen_height(&self) -> f32 {
+        self.ctx.gfx.size().1
     }
 }

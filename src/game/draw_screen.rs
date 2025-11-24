@@ -20,10 +20,10 @@ pub fn draw_screen(
     canvas: &mut graphics::Canvas,
 ) -> GameResult<()> {
 
-    let (width, height) = ctx.gfx.size();
     // the projection matrix
     // This is the calculation of the matrix that converts 3D points to 2D screen points.
     // We use a right-handed coordinate system with zero to one depth range.
+    let (width, height) = ctx.gfx.size();
     let proj = glm::perspective_rh_zo(
         width / height,
         game_state.cam.fov,
@@ -32,7 +32,6 @@ pub fn draw_screen(
     );
 
 
-    skybox::draw_skybox(game_state, ctx, canvas, width, height, proj)?;
 
 
     let mut drawer = super::drawing::PolyDrawerGGEZ::new(ctx, canvas);
@@ -40,6 +39,7 @@ pub fn draw_screen(
         x: game_state.cam.pos.x,
         y: game_state.cam.pos.z,
     };
+    skybox::draw_skybox(&game_state.cam, &mut drawer, proj);
 
     let out_vec = game_state.bsp.order(cam_pos_2d);
 
