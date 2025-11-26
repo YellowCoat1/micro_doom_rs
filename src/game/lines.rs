@@ -1,9 +1,4 @@
 use super::vecs::{Vec2, Vec3};
-use ggez::{
-    Context,
-    graphics::{Canvas, Color, Mesh},
-    mint::Point2,
-};
 use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -118,21 +113,6 @@ impl Mul<f32> for LineSegment {
             start: self.start * scalar,
             end: self.end * scalar,
         }
-    }
-}
-
-impl LineSegment {
-    pub fn draw(&self, ctx: &mut Context, canvas: &mut Canvas, color: Color) {
-        let point1 = Point2 {
-            x: self.start.x,
-            y: self.start.y,
-        };
-        let point2 = Point2 {
-            x: self.end.x,
-            y: self.end.y,
-        };
-        let line = Mesh::new_line(ctx, &[point1, point2], 1.5, color).unwrap();
-        canvas.draw(&line, ggez::graphics::DrawParam::default())
     }
 }
 
@@ -270,23 +250,5 @@ mod tests {
         let line1 = LineSegment::from((0.0, 0.0, 2.0, 2.0));
         let line2 = LineSegment::from((0.0, 2.0, 2.0, 0.0));
         assert!(do_lines_intersect(&line1, &line2));
-    }
-    #[test]
-    fn test_point_side_left() {
-        let line = LineSegment::from((0.0, 0.0, 2.0, 0.0));
-        let point = Vec2::new(1.0, 1.0);
-        assert_eq!(point_side_of_line(&line, &point), Order::Left);
-    }
-    #[test]
-    fn test_point_side_right() {
-        let line = LineSegment::from((0.0, 0.0, 2.0, 0.0));
-        let point = Vec2::new(1.0, -1.0);
-        assert_eq!(point_side_of_line(&line, &point), Order::Right);
-    }
-    #[test]
-    fn test_point_side_on() {
-        let line = LineSegment::from((0.0, 0.0, 2.0, 0.0));
-        let point = Vec2::new(1.0, 0.0);
-        assert_eq!(point_side_of_line(&line, &point), Order::On);
     }
 }

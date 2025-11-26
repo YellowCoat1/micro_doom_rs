@@ -1,12 +1,9 @@
-use ggez::Context;
-
 use crate::game::vecs::Vec3;
 
 use super::GameState;
 use super::lines::{LineSegment, do_lines_intersect};
 
-pub fn attempt_move(game_state: &mut GameState, ctx: &mut Context, move_vec: &Vec3) {
-    let delta = ctx.time.delta().as_secs_f32();
+pub fn attempt_move(game_state: &mut GameState, delta: f32, move_vec: &Vec3) {
     let cam_pos = game_state.cam.pos;
     let new_pos = game_state.cam.pos + *move_vec * 8.0 * delta;
 

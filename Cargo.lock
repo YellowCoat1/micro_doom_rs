@@ -1495,6 +1495,7 @@ name = "micro_doom_rs"
 version = "0.1.0"
 dependencies = [
  "ggez",
+ "mint",
  "nalgebra-glm",
  "once_cell",
  "rand",

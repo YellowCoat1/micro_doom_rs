@@ -1,4 +1,4 @@
-use ggez::mint::Point2;
+use mint::Point2;
 use nalgebra_glm::{Vec2 as GlmVec2, Vec3 as GlmVec3};
 use std::ops::{Add, Div, Mul, Sub};
 

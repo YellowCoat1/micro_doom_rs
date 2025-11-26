@@ -1,6 +1,4 @@
 use crate::game::drawing::Drawer;
-use ggez::graphics::{self, Color};
-use ggez::{Context, GameResult};
 use nalgebra_glm as glm;
 use once_cell::sync::Lazy;
 
@@ -14,16 +12,15 @@ use rand::Rng;
 
 static RAND_32: Lazy<u32> = Lazy::new(|| rand::rng().random());
 
-pub fn draw_screen(
+pub fn draw_screen<T: Drawer>(
     game_state: &mut GameState,
-    ctx: &mut Context,
-    canvas: &mut graphics::Canvas,
-) -> GameResult<()> {
-
+    graphics_ctx: &mut super::GraphicsContext<T>,
+) {
     // the projection matrix
     // This is the calculation of the matrix that converts 3D points to 2D screen points.
     // We use a right-handed coordinate system with zero to one depth range.
-    let (width, height) = ctx.gfx.size();
+    let width = graphics_ctx.width as f32;
+    let height = graphics_ctx.height as f32;
     let proj = glm::perspective_rh_zo(
         width / height,
         game_state.cam.fov,
@@ -34,17 +31,17 @@ pub fn draw_screen(
 
 
 
-    let mut drawer = super::drawing::PolyDrawerGGEZ::new(ctx, canvas);
     let cam_pos_2d = Vec2 {
         x: game_state.cam.pos.x,
         y: game_state.cam.pos.z,
     };
-    skybox::draw_skybox(&game_state.cam, &mut drawer, proj);
+    skybox::draw_skybox(&game_state.cam, graphics_ctx.drawer, proj);
 
     let out_vec = game_state.bsp.order(cam_pos_2d);
 
     for wall_segment in out_vec.iter() {
         let color = random_color((wall_segment.start, wall_segment.end));
+        let color = (color.0, color.1, color.2, 255); // shove in alpha
         //let rotated_wall_seg = cam::rotate_seg(*wall_segment, &game_state.cam);
         let wall_3d_segs = wall_floor_to_3d(&wall_segment.start, &wall_segment.end);
 
@@ -72,13 +69,12 @@ pub fn draw_screen(
             continue;
         }
         // draw poly
-        drawer.draw_polygon(&screen_coord, color.to_rgba());
+        graphics_ctx.drawer.draw_polygon(&screen_coord, color);
     }
 
-    Ok(())
 }
 
-fn random_color(v: (Vec2, Vec2)) -> Color {
+fn random_color(v: (Vec2, Vec2)) -> (u8, u8, u8) {
     let mut rng = *RAND_32
         + (v.0.x as u32) * 100
         + (v.0.y as u32) * 1000
@@ -89,7 +85,7 @@ fn random_color(v: (Vec2, Vec2)) -> Color {
     let g = ((rng & 0x00FF00) >> 8) as u8;
     rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
     let b = (rng & 0x0000FF) as u8;
-    Color::from_rgb(r, g, b)
+    (r, g, b)
 }
 
 fn wall_floor_to_3d(wall_left: &Vec2, wall_right: &Vec2) -> (LineSegment3, LineSegment3) {

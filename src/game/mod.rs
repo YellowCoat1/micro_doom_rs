@@ -1,5 +1,3 @@
-use ggez::input::keyboard::KeyCode;
-use ggez::{Context, GameResult, event, graphics, graphics::Color};
 mod a3d_to_2d;
 mod bsp;
 mod cam;
@@ -10,19 +8,24 @@ mod fs;
 mod lines;
 mod skybox;
 mod vecs;
+mod contexts;
+mod ggez;
+
 use cam::Camera;
 use colls::attempt_move;
 use lines::LineSegment;
 use vecs::Vec3;
-
 use bsp::BSPNode;
+
+use crate::game::drawing::Drawer;
+use crate::game::contexts::GraphicsContext;
 
 pub struct GameState {
     cam: Camera,
     bsp: BSPNode,
 }
 impl GameState {
-    pub fn new(_ctx: &mut Context) -> Self {
+    pub fn new() -> Self {
 
         let (floor_plan, cam_pos) = fs::segs_from_file();
         let camera3d: vecs::Vec3 = Vec3 {
@@ -51,9 +54,10 @@ impl GameState {
             bsp,
         }
     }
-}
-impl event::EventHandler for GameState {
-    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+    fn draw_screen<T: Drawer>(&mut self, graphics_context: &mut GraphicsContext<'_, T>) {
+        draw_screen::draw_screen(self, graphics_context);
+    }
+    fn keys(&mut self, delta: f32, keys_down: contexts::KeysDown) {
         let forward = self.cam.forward_vector();
 
         let flattened = {
@@ -61,35 +65,26 @@ impl event::EventHandler for GameState {
             flat.y = 0.0;
             flat
         };
-
-        dbg!("Camera pos: {:?}", self.cam.pos);
-        let delta = ctx.time.delta().as_secs_f32();
-        if ctx.keyboard.is_key_pressed(KeyCode::Up) {
-            attempt_move(self, ctx, &flattened);
+        
+        if keys_down.up {
+            attempt_move(self, delta, &flattened);
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::Down) {
+        if keys_down.down {
             self.cam.pos = self.cam.pos - flattened * 3.0 * delta;
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::Left) {
-            self.cam.yaw -= 0.01;
+        if keys_down.left {
+            self.cam.yaw -= 1.0 * delta;
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::Right) {
-            self.cam.yaw += 0.01;
+        if keys_down.right {
+            self.cam.yaw += 1.0 * delta;
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::W) {
+        if keys_down.w {
             self.cam.pitch -= 0.01;
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::S) {
+        if keys_down.s {
             self.cam.pitch += 0.01;
         }
-        Ok(())
-    }
 
-    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
-
-        draw_screen::draw_screen(self, ctx, &mut canvas)?;
-
-        canvas.finish(ctx)
     }
 }
+
