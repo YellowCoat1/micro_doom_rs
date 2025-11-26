@@ -1,4 +1,5 @@
 use crate::game::drawing::Drawer;
+use mint::Point2;
 use nalgebra_glm as glm;
 use once_cell::sync::Lazy;
 
@@ -68,6 +69,10 @@ pub fn draw_screen<T: Drawer>(
         if screen_coord.len() < 3 {
             continue;
         }
+        let screen_coord: Vec<Point2<f32>> = screen_coord
+            .iter()
+            .map(|v| Point2 { x: v.x, y: v.y })
+            .collect();
         // draw poly
         graphics_ctx.drawer.draw_polygon(&screen_coord, color);
     }

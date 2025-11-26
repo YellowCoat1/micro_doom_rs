@@ -9,7 +9,6 @@ mod lines;
 mod skybox;
 mod vecs;
 mod contexts;
-mod ggez;
 
 use cam::Camera;
 use colls::attempt_move;
@@ -17,8 +16,8 @@ use lines::LineSegment;
 use vecs::Vec3;
 use bsp::BSPNode;
 
-use crate::game::drawing::Drawer;
-use crate::game::contexts::GraphicsContext;
+pub use drawing::Drawer;
+pub use contexts::{GraphicsContext, KeysDown};
 
 pub struct GameState {
     cam: Camera,
@@ -54,10 +53,10 @@ impl GameState {
             bsp,
         }
     }
-    fn draw_screen<T: Drawer>(&mut self, graphics_context: &mut GraphicsContext<'_, T>) {
+    pub fn draw_screen<T: Drawer>(&mut self, graphics_context: &mut GraphicsContext<'_, T>) {
         draw_screen::draw_screen(self, graphics_context);
     }
-    fn keys(&mut self, delta: f32, keys_down: contexts::KeysDown) {
+    pub fn keys(&mut self, delta: f32, keys_down: contexts::KeysDown) {
         let forward = self.cam.forward_vector();
 
         let flattened = {
