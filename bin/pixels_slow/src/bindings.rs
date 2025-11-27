@@ -1,4 +1,4 @@
-use micro_doom_rs::Drawer;
+use shared::{Drawer, KeysDown};
 use winit::keyboard::KeyCode;
 use winit_input_helper::WinitInputHelper;
 
@@ -30,8 +30,8 @@ impl<'a> Drawer for PixelDrawer<'a> {
 }
 
 
-pub fn keys(input: &WinitInputHelper) -> micro_doom_rs::KeysDown {
-    micro_doom_rs::KeysDown {
+pub fn keys(input: &WinitInputHelper) -> KeysDown {
+    KeysDown {
         up: input.key_held(KeyCode::ArrowUp),
         down: input.key_held(KeyCode::ArrowDown),
         left: input.key_held(KeyCode::ArrowLeft),

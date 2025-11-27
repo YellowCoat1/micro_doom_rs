@@ -8,7 +8,7 @@ use winit::keyboard::KeyCode;
 use winit::window::{Window, WindowId};
 use winit_input_helper::WinitInputHelper;
 use lines::PixelDrawer;
-use micro_doom_rs::{GameState, GraphicsContext};
+use shared::{GameState, GraphicsContext};
 
 #[derive(Copy, Clone)]
 struct Color(u8, u8, u8);

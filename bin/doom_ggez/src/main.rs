@@ -1,4 +1,4 @@
-use micro_doom_rs::{GameState, GraphicsContext, KeysDown, Drawer};
+use shared::{GameState, GraphicsContext, KeysDown, Drawer};
 
 struct GGEZGame {
     state: GameState,
