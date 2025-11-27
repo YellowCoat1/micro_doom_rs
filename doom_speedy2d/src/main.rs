@@ -74,12 +74,12 @@ impl WindowHandler for WindowState {
 
 
         let keys_down = KeysDown {
-            up: self.keys_down.contains(&VirtualKeyCode::W),
-            down: self.keys_down.contains(&VirtualKeyCode::S),
-            left: self.keys_down.contains(&VirtualKeyCode::A),
-            right: self.keys_down.contains(&VirtualKeyCode::D),
-            w: self.keys_down.contains(&VirtualKeyCode::Up),
-            s: self.keys_down.contains(&VirtualKeyCode::Down),
+            up: self.keys_down.contains(&VirtualKeyCode::Up),
+            down: self.keys_down.contains(&VirtualKeyCode::Down),
+            left: self.keys_down.contains(&VirtualKeyCode::Left),
+            right: self.keys_down.contains(&VirtualKeyCode::Right),
+            w: self.keys_down.contains(&VirtualKeyCode::W),
+            s: self.keys_down.contains(&VirtualKeyCode::S),
         };
 
         self.game_state.keys(dt, keys_down);
