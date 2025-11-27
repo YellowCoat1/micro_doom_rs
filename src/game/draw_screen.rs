@@ -36,7 +36,7 @@ pub fn draw_screen<T: Drawer>(
         x: game_state.cam.pos.x,
         y: game_state.cam.pos.z,
     };
-    skybox::draw_skybox(&game_state.cam, graphics_ctx.drawer, proj);
+    skybox::draw_skybox(&game_state.cam, graphics_ctx, proj);
 
     let out_vec = game_state.bsp.order(cam_pos_2d);
 

@@ -86,10 +86,4 @@ impl<'a> Drawer for PolyDrawerGGEZ<'a> {
         self.canvas
             .draw(&poly, ggez::graphics::DrawParam::default());
     }
-    fn screen_width(&self) -> f32 {
-        self.ctx.gfx.size().0
-    }
-    fn screen_height(&self) -> f32 {
-        self.ctx.gfx.size().1
-    }
 }

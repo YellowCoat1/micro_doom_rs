@@ -8,7 +8,5 @@ use mint::Point2;
 
 pub trait Drawer {
     fn draw_polygon(&mut self, points: &[Point2<f32>], color: (u8, u8, u8, u8));
-    fn screen_width(&self) -> f32;
-    fn screen_height(&self) -> f32;
 }
 

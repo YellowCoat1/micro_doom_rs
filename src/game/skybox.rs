@@ -1,15 +1,14 @@
 use mint::Point2;
 use nalgebra_glm as glm;
-use crate::game::cam::Camera;
+use crate::{Drawer, GraphicsContext, game::cam::Camera};
 
-pub fn draw_skybox(
+pub fn draw_skybox<T: Drawer>(
     cam: &Camera,
-    drawer: &mut impl super::drawing::Drawer,
+    gctx: &mut GraphicsContext<'_, T>,
     proj: glm::Mat4,
 )  {
-
-    let width = drawer.screen_width();
-    let height = drawer.screen_height();
+    let width = gctx.width as f32;
+    let height = gctx.height as f32;
 
     let middlepoint = cam.pos + cam.forward_vector_zero_pitch();
     let screen_middlepoint = super::a3d_to_2d::project_point(middlepoint.into(), &cam, proj, width, height)
@@ -25,5 +24,5 @@ pub fn draw_skybox(
 
     const BLUE: (u8, u8, u8, u8) = (0, 0, 255, 255);
 
-    drawer.draw_polygon(&points, BLUE);
+    gctx.drawer.draw_polygon(&points, BLUE);
 }
