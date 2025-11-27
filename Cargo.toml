@@ -1,8 +1,9 @@
 [workspace]
 members = [
 	"shared",
-	"bin/pixels_slow",
-	"bin/doom_ggez",
+	"pixels_slow",
+	"pixels",
+	"doom_ggez",
 ]
 resolver = '3'
 default_run = "doom_ggez"
