@@ -2,8 +2,8 @@
 members = [
 	"shared",
 	"pixels_slow",
-	"pixels",
+	#"pixels",
+	"doom_speedy2d",
 	"doom_ggez",
 ]
 resolver = '3'
-default_run = "doom_ggez"

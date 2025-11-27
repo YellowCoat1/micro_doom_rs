@@ -1,0 +1,9 @@
+[package]
+name = "doom_speedy2d"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+shared = { path = "../shared" }
+mint = "0.5.9"
+speedy2d = "2.1.0"
